@@ -57,7 +57,7 @@ export default function PricingPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-center">
                 <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">1 rewrite per day</span>
+                <span className="text-gray-700">1 free rewrite per day</span>
               </li>
               <li className="flex items-center">
                 <Check className="w-5 h-5 text-green-500 mr-3" />
@@ -110,7 +110,7 @@ export default function PricingPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-center">
                 <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">5 rewrites</span>
+                <span className="text-gray-700">Unlimited rewrites</span>
               </li>
               <li className="flex items-center">
                 <Check className="w-5 h-5 text-green-500 mr-3" />
@@ -252,6 +252,70 @@ export default function PricingPage() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-300 py-12 mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Brand */}
+            <div className="flex flex-col">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-reddit rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">R</span>
+                </div>
+                <span className="text-xl font-bold text-white">RedditFit</span>
+              </div>
+              <p className="text-sm text-gray-400 mb-4">
+                Make every Reddit post rule-proof with AI-powered rewriting.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="flex flex-col">
+              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+              <div className="space-y-2">
+                <Link
+                  href="/"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Dashboard
+                </Link>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div className="flex flex-col">
+              <h3 className="text-white font-semibold mb-4">Legal</h3>
+              <div className="flex flex-col space-y-2">
+                <Link
+                  href="/terms"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Terms of Service
+                </Link>
+                <Link
+                  href="/privacy"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+            <div className="text-sm text-gray-400">
+              © 2024 RedditFit. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -44,6 +44,19 @@ export async function getUserPlan(userId: string): Promise<UserPlan> {
 
     const userData = user[0];
 
+    // Update existing free users to have 1 rewrite limit if they don't already
+    if (userData.plan === "free" && userData.rewritesLimit !== 1) {
+      await db
+        .update(users)
+        .set({
+          rewritesLimit: 1,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.clerkId, userId));
+
+      userData.rewritesLimit = 1;
+    }
+
     // Check if we need to reset daily limits (for free users)
     const resetDate = getNextResetDate();
     const lastReset = userData.updatedAt;
@@ -143,7 +156,7 @@ export function getPlanLimits(plan: string): {
       return {
         rewritesLimit: 1,
         features: [
-          "1 rewrite per day",
+          "1 free rewrite per day",
           "Basic AI optimization",
           "Subreddit rules analysis",
           "Compliance scoring",
@@ -168,7 +181,7 @@ export function getPlanLimits(plan: string): {
       return {
         rewritesLimit: 1,
         features: [
-          "1 rewrite per day",
+          "1 free rewrite per day",
           "Basic AI optimization",
           "Subreddit rules analysis",
           "Compliance scoring",

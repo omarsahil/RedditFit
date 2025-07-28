@@ -7,34 +7,58 @@ export async function initializeInfrastructure() {
   try {
     logger.info("Initializing technical infrastructure...");
 
-    // Check database health
-    const dbHealth = await checkDatabaseHealth();
-    if (dbHealth.status !== "healthy") {
-      logger.warn("Database health check failed", { status: dbHealth.status });
+    // Check database health (only in production)
+    if (process.env.NODE_ENV === "production") {
+      const dbHealth = await checkDatabaseHealth();
+      if (dbHealth.status !== "healthy") {
+        logger.warn("Database health check failed", {
+          status: dbHealth.status,
+        });
+      } else {
+        logger.info("Database health check passed");
+      }
     } else {
-      logger.info("Database health check passed");
+      logger.info("Skipping database health check in development");
     }
 
-    // Initialize scheduled jobs
-    initializeScheduledJobs();
-    logger.info("Scheduled jobs initialized");
+    // Initialize scheduled jobs (only in production)
+    if (process.env.NODE_ENV === "production") {
+      initializeScheduledJobs();
+      logger.info("Scheduled jobs initialized");
+    } else {
+      logger.info("Skipping scheduled jobs initialization in development");
+    }
 
-    // Setup global error handling
-    setupGlobalErrorHandling();
-    logger.info("Global error handling setup complete");
+    // Setup global error handling (only in production)
+    if (process.env.NODE_ENV === "production") {
+      setupGlobalErrorHandling();
+      logger.info("Global error handling setup complete");
+    } else {
+      logger.info("Skipping error handling setup in development");
+    }
 
     // Log initialization complete
     logger.info("Technical infrastructure initialization complete", {
-      database: dbHealth.status,
-      scheduledJobs: "initialized",
-      errorHandling: "setup",
+      database:
+        process.env.NODE_ENV === "production"
+          ? dbHealth?.status
+          : "development",
+      scheduledJobs:
+        process.env.NODE_ENV === "production" ? "initialized" : "skipped",
+      errorHandling:
+        process.env.NODE_ENV === "production" ? "setup" : "skipped",
     });
 
     return {
       success: true,
-      database: dbHealth.status,
-      scheduledJobs: "initialized",
-      errorHandling: "setup",
+      database:
+        process.env.NODE_ENV === "production"
+          ? dbHealth?.status
+          : "development",
+      scheduledJobs:
+        process.env.NODE_ENV === "production" ? "initialized" : "skipped",
+      errorHandling:
+        process.env.NODE_ENV === "production" ? "setup" : "skipped",
     };
   } catch (error) {
     logger.error("Failed to initialize infrastructure", { error });

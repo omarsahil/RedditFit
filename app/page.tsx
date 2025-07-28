@@ -95,10 +95,10 @@ export default function HomePage() {
               </button>
             </div>
 
-            <div className="mt-8 flex items-center justify-center space-x-6 text-sm text-gray-500">
+            <div className="mt-8 flex flex-col items-center space-y-2 text-sm text-gray-500">
               <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
-                Free to start
+                <CheckCircle className="w-4 h-4 text-green-500 mr-1" />1 free
+                rewrite per day
               </div>
               <div className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
@@ -163,6 +163,172 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* See App in Action Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              See ReddiFit in Action
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Watch how ReddiFit transforms your posts to comply with subreddit
+              rules and boost engagement
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Before/After Example */}
+            <div className="space-y-6">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                <div className="flex items-center mb-3">
+                  <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                  <span className="text-sm font-semibold text-red-700">
+                    BEFORE - Rule Violations
+                  </span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  "Help me with my coding homework please"
+                </h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Posted to r/programming
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm text-red-600">
+                    <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                    Violates "No Homework Help" rule
+                  </div>
+                  <div className="flex items-center text-sm text-red-600">
+                    <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                    Vague title, no context provided
+                  </div>
+                  <div className="flex items-center text-sm text-red-600">
+                    <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                    Likely to be removed by moderators
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                <div className="flex items-center mb-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                  <span className="text-sm font-semibold text-green-700">
+                    AFTER - ReddiFit Optimized
+                  </span>
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2">
+                  "Best practices for debugging JavaScript async/await issues?"
+                </h3>
+                <p className="text-sm text-gray-600 mb-3">
+                  Posted to r/programming
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center text-sm text-green-600">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Follows community guidelines
+                  </div>
+                  <div className="flex items-center text-sm text-green-600">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Clear, descriptive title
+                  </div>
+                  <div className="flex items-center text-sm text-green-600">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    95% compliance score
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Features Demo */}
+            <div className="space-y-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-reddit/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Zap className="w-8 h-8 text-reddit" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">
+                  AI-Powered Analysis
+                </h3>
+                <p className="text-gray-600">
+                  Our AI analyzes 1000+ subreddit rules in real-time to ensure
+                  your posts comply with community guidelines.
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">
+                  Instant Optimization
+                </h3>
+                <p className="text-gray-600">
+                  Get rewritten posts in seconds with detailed explanations of
+                  what was changed and why.
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Shield className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">
+                  Higher Success Rate
+                </h3>
+                <p className="text-gray-600">
+                  Users report 3x higher post approval rates and 2x more
+                  engagement after using ReddiFit.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Section */}
+          <div className="mt-16 bg-gradient-to-r from-reddit/5 to-orange-50 rounded-2xl p-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+              <div>
+                <div className="text-3xl font-bold text-reddit mb-2">10K+</div>
+                <div className="text-sm text-gray-600">Posts Optimized</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-reddit mb-2">95%</div>
+                <div className="text-sm text-gray-600">Approval Rate</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-reddit mb-2">500+</div>
+                <div className="text-sm text-gray-600">Subreddits Supported</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-reddit mb-2">2.5x</div>
+                <div className="text-sm text-gray-600">More Engagement</div>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center mt-12">
+            <SignedOut>
+              <SignUpButton mode="modal">
+                <button className="btn-primary text-lg px-8 py-4">
+                  Try ReddiFit Free
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <Link
+                href="/dashboard"
+                className="btn-primary text-lg px-8 py-4 inline-flex items-center"
+              >
+                Go to Dashboard
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </SignedIn>
+            <p className="text-sm text-gray-500 mt-3">
+              No credit card required • Free forever plan available
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -188,7 +354,7 @@ export default function HomePage() {
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    <span className="text-sm">3 rewrites per day</span>
+                    <span className="text-sm">1 free rewrite per day</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
@@ -326,16 +492,62 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="w-8 h-8 bg-reddit rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">R</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Brand */}
+            <div className="flex flex-col">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-reddit rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">R</span>
+                </div>
+                <span className="text-xl font-bold text-white">RedditFit</span>
               </div>
-              <span className="text-xl font-bold text-white">RedditFit</span>
+              <p className="text-sm text-gray-400 mb-4">
+                Make every Reddit post rule-proof with AI-powered rewriting.
+              </p>
             </div>
 
+            {/* Quick Links */}
+            <div className="flex flex-col">
+              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+              <div className="space-y-2">
+                <Link
+                  href="/pricing"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Pricing
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Dashboard
+                </Link>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div className="flex flex-col">
+              <h3 className="text-white font-semibold mb-4">Legal</h3>
+              <div className="flex flex-col space-y-2">
+                <Link
+                  href="/terms"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Terms of Service
+                </Link>
+                <Link
+                  href="/privacy"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
             <div className="text-sm text-gray-400">
-              © 2024 RedditFit. Make every Reddit post rule-proof.
+              © 2024 RedditFit. All rights reserved.
             </div>
           </div>
         </div>

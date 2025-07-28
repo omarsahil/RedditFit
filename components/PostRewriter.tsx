@@ -428,12 +428,12 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
       <div className="space-y-6 h-full">
         {/* Mode Toggle */}
         <div className="card">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="flex items-start justify-between mb-6">
+            <div className="flex-1 pr-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
                 Rewrite Your Reddit Post
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 leading-relaxed">
                 Optimize your posts for better engagement and compliance
               </p>
             </div>
@@ -475,9 +475,9 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
 
           {!isBulkMode || (userPlan && userPlan.plan !== "pro") ? (
             /* Single Post Form */
-            <div className="space-y-4">
+            <div className="space-y-6">
               {/* Subreddit Input */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="block text-sm font-semibold text-gray-800">
                   Target Subreddit *
                 </label>
@@ -488,7 +488,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
                     setSubreddit(e.target.value.replace("r/", ""))
                   }
                   placeholder="e.g., AskReddit, programming, funny"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-reddit focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-reddit focus:border-transparent transition-colors"
                 />
                 <div className="flex items-center text-xs text-gray-600">
                   <Info className="w-4 h-4 mr-2 text-blue-500" />
@@ -497,7 +497,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
               </div>
 
               {/* Title Input */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="block text-sm font-semibold text-gray-800">
                   Post Title *
                 </label>
@@ -506,7 +506,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
                   value={postTitle}
                   onChange={(e) => setPostTitle(e.target.value)}
                   placeholder="e.g., How do I learn programming as a beginner?"
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-reddit focus:border-transparent transition-colors"
+                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-reddit focus:border-transparent transition-colors"
                 />
                 <div className="flex items-center text-xs text-gray-600">
                   <HelpCircle className="w-4 h-4 mr-2 text-blue-500" />
@@ -515,7 +515,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
               </div>
 
               {/* Body Input */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <label className="block text-sm font-semibold text-gray-800">
                   Post Body (optional)
                 </label>
@@ -524,7 +524,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
                   onChange={(e) => setPostBody(e.target.value)}
                   placeholder="Add more context to your post here. This helps the AI understand your intent better and create more relevant rewrites."
                   rows={4}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-reddit focus:border-transparent transition-colors resize-vertical"
+                  className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-reddit focus:border-transparent transition-colors resize-vertical"
                 />
                 <div className="flex items-center text-xs text-gray-600">
                   <Info className="w-4 h-4 mr-2 text-blue-500" />
