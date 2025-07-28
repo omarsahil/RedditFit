@@ -390,11 +390,38 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
 
   const copyToClipboard = async (text: string, type: string = "content") => {
     try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(`${type} copied!`);
-      setTimeout(() => setCopySuccess(""), 2000);
+      // Check if clipboard API is available
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        setCopySuccess(`${type} copied!`);
+        setTimeout(() => setCopySuccess(""), 2000);
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        
+        try {
+          document.execCommand('copy');
+          setCopySuccess(`${type} copied!`);
+          setTimeout(() => setCopySuccess(""), 2000);
+        } catch (fallbackErr) {
+          console.error("Fallback copy failed:", fallbackErr);
+          setCopySuccess(`Failed to copy ${type.toLowerCase()}`);
+          setTimeout(() => setCopySuccess(""), 3000);
+        } finally {
+          document.body.removeChild(textArea);
+        }
+      }
     } catch (err) {
       console.error("Failed to copy:", err);
+      setCopySuccess(`Failed to copy ${type.toLowerCase()}`);
+      setTimeout(() => setCopySuccess(""), 3000);
     }
   };
 
@@ -927,18 +954,18 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
                 </h3>
                 <div className="flex items-center space-x-2">
                   {copySuccess && (
-                    <span className="text-sm text-green-600 font-medium">
+                    <span className="text-sm text-green-600 font-medium bg-green-50 px-2 py-1 rounded border border-green-200">
                       {copySuccess}
                     </span>
                   )}
                   <button
                     onClick={() =>
                       copyToClipboard(
-                        `${result.rewrittenTitle}\n\n${result.rewrittenBody}`,
+                        `${result.rewrittenTitle}\n\n${result.rewrittenBody || ''}`,
                         "Post"
                       )
                     }
-                    className="btn-secondary text-sm py-2 px-3 flex items-center"
+                    className="btn-secondary text-sm py-2 px-3 flex items-center hover:bg-gray-200 transition-colors"
                   >
                     <Copy className="w-4 h-4 mr-1" />
                     Copy All
@@ -956,7 +983,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
                       onClick={() =>
                         copyToClipboard(result.rewrittenTitle, "Title")
                       }
-                      className="text-sm text-gray-600 hover:text-gray-800 flex items-center"
+                      className="text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 px-2 py-1 rounded transition-colors flex items-center"
                     >
                       <Copy className="w-4 h-4 mr-1" />
                       Copy
@@ -979,7 +1006,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
                         onClick={() =>
                           copyToClipboard(result.rewrittenBody, "Body")
                         }
-                        className="text-sm text-gray-600 hover:text-gray-800 flex items-center"
+                        className="text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 px-2 py-1 rounded transition-colors flex items-center"
                       >
                         <Copy className="w-4 h-4 mr-1" />
                         Copy
