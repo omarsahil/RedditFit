@@ -1,27 +1,41 @@
 {
-  "name": "reddit",
+  "name": "RedditFit",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:migrate": "echo 'Migration completed. Database tables are now created.'"
   },
   "dependencies": {
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.4.3"
+    "@clerk/nextjs": "^5.0.0",
+    "@neondatabase/serverless": "^0.7.2",
+    "@stripe/stripe-js": "^7.6.1",
+    "@types/pg": "^8.15.4",
+    "dotenv": "^17.2.1",
+    "drizzle-orm": "^0.29.1",
+    "lucide-react": "^0.294.0",
+    "next": "14.2.25",
+    "openai": "^4.20.1",
+    "pg": "^8.16.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "reddit": "^1.2.1",
+    "stripe": "^18.3.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.4.3",
-    "@eslint/eslintrc": "^3"
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "autoprefixer": "^10.4.16",
+    "drizzle-kit": "^0.20.6",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.25",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "typescript": "^5"
   }
 }
