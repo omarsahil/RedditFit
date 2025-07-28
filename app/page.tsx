@@ -509,18 +509,12 @@ export default function HomePage() {
             {/* Quick Links */}
             <div className="flex flex-col">
               <h3 className="text-white font-semibold mb-4">Quick Links</h3>
-              <div className="space-y-2">
+              <div className="flex flex-col space-y-2">
                 <Link
                   href="/pricing"
                   className="text-gray-400 hover:text-white text-sm transition-colors"
                 >
                   Pricing
-                </Link>
-                <Link
-                  href="/dashboard"
-                  className="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  Dashboard
                 </Link>
               </div>
             </div>
