@@ -8,8 +8,9 @@ export async function initializeInfrastructure() {
     logger.info("Initializing technical infrastructure...");
 
     // Check database health (only in production)
+    let dbHealth: any = null;
     if (process.env.NODE_ENV === "production") {
-      const dbHealth = await checkDatabaseHealth();
+      dbHealth = await checkDatabaseHealth();
       if (dbHealth.status !== "healthy") {
         logger.warn("Database health check failed", {
           status: dbHealth.status,
