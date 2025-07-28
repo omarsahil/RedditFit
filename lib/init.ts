@@ -9,7 +9,7 @@ export async function initializeInfrastructure() {
     logger.info("Initializing technical infrastructure...");
 
     // Check database health (only in production)
-    let dbHealth: any = null;
+    let dbHealth: { status: string } | null = null;
     if (process.env.NODE_ENV === "production") {
       dbHealth = await checkDatabaseHealth();
       if (dbHealth.status !== "healthy") {
@@ -43,7 +43,7 @@ export async function initializeInfrastructure() {
     logger.info("Technical infrastructure initialization complete", {
       database:
         process.env.NODE_ENV === "production"
-          ? dbHealth?.status
+          ? dbHealth?.status || "unknown"
           : "development",
       scheduledJobs:
         process.env.NODE_ENV === "production" ? "initialized" : "skipped",
@@ -55,7 +55,7 @@ export async function initializeInfrastructure() {
       success: true,
       database:
         process.env.NODE_ENV === "production"
-          ? dbHealth?.status
+          ? dbHealth?.status || "unknown"
           : "development",
       scheduledJobs:
         process.env.NODE_ENV === "production" ? "initialized" : "skipped",
