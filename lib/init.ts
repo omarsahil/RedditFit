@@ -8,7 +8,7 @@ export async function initializeInfrastructure() {
     // Initialize infrastructure components
     logger.info("Initializing technical infrastructure...");
 
-    // Check database health (only in production)
+    // Check database health (only in production environment)
     let dbHealth: { status: string } | null = null;
     if (process.env.NODE_ENV === "production") {
       dbHealth = await checkDatabaseHealth();
