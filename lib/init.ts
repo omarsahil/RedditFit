@@ -5,6 +5,7 @@ import { checkDatabaseHealth } from "./database";
 
 export async function initializeInfrastructure() {
   try {
+    // Initialize infrastructure components
     logger.info("Initializing technical infrastructure...");
 
     // Check database health (only in production)
