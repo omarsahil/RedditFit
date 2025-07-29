@@ -47,19 +47,24 @@ export default function PerformanceOptimizer() {
     // Add touch-friendly interactions
     const buttons = document.querySelectorAll("button, a");
     buttons.forEach((button) => {
-      button.addEventListener("touchstart", () => {
-        button.style.transform = "scale(0.98)";
-      });
-      button.addEventListener("touchend", () => {
-        button.style.transform = "scale(1)";
-      });
+      const element = button as HTMLElement;
+      const touchStartHandler = () => {
+        element.style.transform = "scale(0.98)";
+      };
+      const touchEndHandler = () => {
+        element.style.transform = "scale(1)";
+      };
+
+      element.addEventListener("touchstart", touchStartHandler);
+      element.addEventListener("touchend", touchEndHandler);
     });
 
     return () => {
       // Cleanup
       buttons.forEach((button) => {
-        button.removeEventListener("touchstart", () => {});
-        button.removeEventListener("touchend", () => {});
+        const element = button as HTMLElement;
+        element.removeEventListener("touchstart", () => {});
+        element.removeEventListener("touchend", () => {});
       });
     };
   }, []);
