@@ -4,16 +4,20 @@ import { useState } from "react";
 import { Check, Clock, Star, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
+import { useEffect } from "react";
 
 export default function PricingPage() {
   const { user, isSignedIn } = useUser();
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
+  const [showLoginMessage, setShowLoginMessage] = useState(false);
 
   // Replace the handlePlanSelect function with direct redirect for 'pro' plan
   const handlePlanSelect = (planId: string) => {
     if (!isSignedIn) {
-      // Redirect to sign in if user is not authenticated
-      window.location.href = "/sign-in?redirect=/pricing";
+      setShowLoginMessage(true);
+      setTimeout(() => {
+        window.location.href = "/sign-in?redirect=/pricing";
+      }, 1800);
       return;
     }
 
@@ -61,6 +65,14 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Login prompt */}
+      {showLoginMessage && (
+        <div className="fixed top-0 left-0 w-full z-50 flex justify-center">
+          <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-6 py-3 rounded-b shadow-md mt-0 animate-fade-in">
+            Please sign in to purchase the Pro plan.
+          </div>
+        </div>
+      )}
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
