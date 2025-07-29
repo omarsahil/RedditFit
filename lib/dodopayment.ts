@@ -22,6 +22,25 @@ export interface CreatePaymentIntentRequest {
   metadata?: Record<string, any>;
 }
 
+export interface CreateCheckoutSessionRequest {
+  planId: string;
+  userId: string;
+  email: string;
+  successUrl: string;
+  cancelUrl: string;
+  metadata?: Record<string, any>;
+}
+
+export interface CheckoutSession {
+  id: string;
+  url: string;
+  status: "open" | "complete" | "expired";
+  amount: number;
+  currency: string;
+  created: number;
+  metadata?: Record<string, any>;
+}
+
 export interface PaymentIntent {
   id: string;
   amount: number;
@@ -79,6 +98,36 @@ export class DodoPaymentClient {
     return response.json();
   }
 
+  async createCheckoutSession(
+    data: CreateCheckoutSessionRequest
+  ): Promise<CheckoutSession> {
+    // In a real implementation, this would call the DodoPayment API
+    // For now, we'll simulate the response
+    const amount = this.getPlanPrice(data.planId);
+    const sessionId = `cs_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    // Simulate DodoPayment checkout URL
+    const checkoutUrl = `${this.baseUrl}/checkout/${sessionId}?key=${this.config.apiKey}`;
+
+    return {
+      id: sessionId,
+      url: checkoutUrl,
+      status: "open",
+      amount: amount,
+      currency: "usd",
+      created: Date.now(),
+      metadata: {
+        userId: data.userId,
+        planId: data.planId,
+        successUrl: data.successUrl,
+        cancelUrl: data.cancelUrl,
+        ...data.metadata,
+      },
+    };
+  }
+
   async createPaymentIntent(
     data: CreatePaymentIntentRequest
   ): Promise<PaymentIntent> {
@@ -115,6 +164,19 @@ export class DodoPaymentClient {
       clientSecret: `pi_${id}_secret_${Math.random()
         .toString(36)
         .substr(2, 9)}`,
+      created: Date.now(),
+      metadata: {},
+    };
+  }
+
+  async getCheckoutSession(id: string): Promise<CheckoutSession> {
+    // Simulate getting checkout session
+    return {
+      id: id,
+      url: `${this.baseUrl}/checkout/${id}`,
+      status: "complete",
+      amount: 999,
+      currency: "usd",
       created: Date.now(),
       metadata: {},
     };

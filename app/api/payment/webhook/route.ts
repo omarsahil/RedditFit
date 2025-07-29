@@ -3,6 +3,7 @@ import { createDodoPaymentClient } from "@/lib/dodopayment";
 import { db, users } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/monitoring";
+import { getPlanFromDodoPlanId } from "@/lib/rewrite-limits";
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,8 +25,14 @@ export async function POST(request: NextRequest) {
 
     // Handle different event types
     switch (event.type) {
+      case "checkout.session.completed":
+        await handleCheckoutSessionCompleted(event.data);
+        break;
       case "payment.processing":
         await handlePaymentProcessing(event.data);
+        break;
+      case "payment.succeeded":
+        await handlePaymentSuccess(event.data);
         break;
       case "payment.failed":
         await handlePaymentFailure(event.data);
@@ -68,6 +75,47 @@ export async function POST(request: NextRequest) {
   }
 }
 
+async function handleCheckoutSessionCompleted(data: any) {
+  const { metadata } = data;
+  const userId = metadata?.userId;
+  const planId = metadata?.planId;
+
+  if (!userId || !planId) {
+    logger.error("Missing user or plan data in checkout session completion", {
+      data,
+    });
+    return;
+  }
+
+  try {
+    // Get plan details from Dodo payment plan ID
+    const planDetails = getPlanFromDodoPlanId(planId);
+
+    // Update user plan in database
+    await db
+      .update(users)
+      .set({
+        plan: planDetails.plan,
+        rewritesLimit: planDetails.rewritesLimit,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.clerkId, userId));
+
+    logger.info("User plan updated after successful checkout", {
+      userId,
+      planId,
+      newPlan: planDetails.plan,
+      newLimit: planDetails.rewritesLimit,
+    });
+  } catch (error) {
+    logger.error("Error updating user plan after checkout completion", {
+      userId,
+      planId,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 async function handlePaymentSuccess(data: any) {
   const { metadata } = data;
   const userId = metadata?.userId;
@@ -79,21 +127,15 @@ async function handlePaymentSuccess(data: any) {
   }
 
   try {
-    const dodoPayment = createDodoPaymentClient();
-    const plans = dodoPayment.getAvailablePlans();
-    const plan = plans.find((p) => p.id === planId);
-
-    if (!plan) {
-      logger.error("Plan not found", { planId });
-      return;
-    }
+    // Get plan details from Dodo payment plan ID
+    const planDetails = getPlanFromDodoPlanId(planId);
 
     // Update user plan in database
     await db
       .update(users)
       .set({
-        plan: "pro",
-        rewritesLimit: plan.rewritesLimit,
+        plan: planDetails.plan,
+        rewritesLimit: planDetails.rewritesLimit,
         updatedAt: new Date(),
       })
       .where(eq(users.clerkId, userId));
@@ -101,7 +143,8 @@ async function handlePaymentSuccess(data: any) {
     logger.info("User plan updated after successful payment", {
       userId,
       planId,
-      newLimit: plan.rewritesLimit,
+      newPlan: planDetails.plan,
+      newLimit: planDetails.rewritesLimit,
     });
   } catch (error) {
     logger.error("Error updating user plan after payment success", {
@@ -189,26 +232,24 @@ async function handleSubscriptionActive(data: any) {
   const { customer, plan } = data;
 
   try {
-    const dodoPayment = createDodoPaymentClient();
-    const plans = dodoPayment.getAvailablePlans();
-    const planData = plans.find((p) => p.id === plan);
+    // Get plan details from Dodo payment plan ID
+    const planDetails = getPlanFromDodoPlanId(plan);
 
-    if (planData) {
-      await db
-        .update(users)
-        .set({
-          plan: "pro",
-          rewritesLimit: planData.rewritesLimit,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.clerkId, customer));
+    await db
+      .update(users)
+      .set({
+        plan: planDetails.plan,
+        rewritesLimit: planDetails.rewritesLimit,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.clerkId, customer));
 
-      logger.info("User subscription activated", {
-        userId: customer,
-        planId: plan,
-        newLimit: planData.rewritesLimit,
-      });
-    }
+    logger.info("User subscription activated", {
+      userId: customer,
+      planId: plan,
+      newPlan: planDetails.plan,
+      newLimit: planDetails.rewritesLimit,
+    });
   } catch (error) {
     logger.error("Error activating subscription", {
       userId: customer,
@@ -264,25 +305,22 @@ async function handleSubscriptionPlanChanged(data: any) {
   const { customer, plan } = data;
 
   try {
-    const dodoPayment = createDodoPaymentClient();
-    const plans = dodoPayment.getAvailablePlans();
-    const planData = plans.find((p) => p.id === plan);
+    // Get plan details from Dodo payment plan ID
+    const planDetails = getPlanFromDodoPlanId(plan);
 
-    if (planData) {
-      await db
-        .update(users)
-        .set({
-          rewritesLimit: planData.rewritesLimit,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.clerkId, customer));
+    await db
+      .update(users)
+      .set({
+        rewritesLimit: planDetails.rewritesLimit,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.clerkId, customer));
 
-      logger.info("User plan changed", {
-        userId: customer,
-        planId: plan,
-        newLimit: planData.rewritesLimit,
-      });
-    }
+    logger.info("User plan changed", {
+      userId: customer,
+      planId: plan,
+      newLimit: planDetails.rewritesLimit,
+    });
   } catch (error) {
     logger.error("Error changing user plan", {
       userId: customer,

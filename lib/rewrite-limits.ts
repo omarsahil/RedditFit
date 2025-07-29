@@ -36,26 +36,13 @@ export async function getUserPlan(userId: string): Promise<UserPlan> {
       return {
         plan: "free",
         rewritesUsed: 0,
-        rewritesLimit: 1,
+        rewritesLimit: 3,
         canRewrite: true,
         resetDate: getNextResetDate(),
       };
     }
 
     const userData = user[0];
-
-    // Update existing free users to have 3 rewrite limit if they don't already
-    if (userData.plan === "free" && userData.rewritesLimit !== 3) {
-      await db
-        .update(users)
-        .set({
-          rewritesLimit: 3,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.clerkId, userId));
-
-      userData.rewritesLimit = 3;
-    }
 
     // Check if we need to reset daily limits (for free users)
     const resetDate = getNextResetDate();
@@ -80,6 +67,7 @@ export async function getUserPlan(userId: string): Promise<UserPlan> {
       };
     }
 
+    // Determine if user can rewrite based on their plan
     const canRewrite =
       userData.plan === "pro" || userData.rewritesUsed < userData.rewritesLimit;
 
@@ -187,6 +175,35 @@ export function getPlanLimits(plan: string): {
           "Compliance scoring",
           "Rewrite history",
         ],
+      };
+  }
+}
+
+// Helper function to get plan details from Dodo payment plans
+export function getPlanFromDodoPlanId(planId: string): {
+  plan: "free" | "pro";
+  rewritesLimit: number;
+} {
+  switch (planId) {
+    case "basic-monthly":
+      return {
+        plan: "pro",
+        rewritesLimit: 50,
+      };
+    case "pro-monthly":
+      return {
+        plan: "pro",
+        rewritesLimit: 200,
+      };
+    case "unlimited-monthly":
+      return {
+        plan: "pro",
+        rewritesLimit: -1, // Unlimited
+      };
+    default:
+      return {
+        plan: "free",
+        rewritesLimit: 3,
       };
   }
 }

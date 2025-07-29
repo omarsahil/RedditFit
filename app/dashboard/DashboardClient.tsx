@@ -1,364 +1,338 @@
 "use client";
 
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { PostRewriter } from "@/components/PostRewriter";
-import { useState, useEffect } from "react";
-
-interface Post {
-  id: string;
-  originalTitle: string;
-  rewrittenTitle: string;
-  subreddit: string;
-  complianceScore: number;
-  createdAt: string;
-}
-
-interface Analytics {
-  totalRewrites: number;
-  averageCompliance: number;
-  topSubreddits: Array<{ subreddit: string; count: number }>;
-  recentTrends: Array<{ date: string; rewrites: number }>;
-}
 
 export default function DashboardClient() {
+  const { isSignedIn, isLoaded } = useUser();
+  const router = useRouter();
+
+  // User rewrite history state
+  const [history, setHistory] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
+  const [historyError, setHistoryError] = useState("");
+
+  // Analytics state
+  const [analytics, setAnalytics] = useState<{
+    totalRewrites: number;
+    averageCompliance: number;
+    topSubreddits: { subreddit: string; count: number }[];
+    recentTrends: { date: string; rewrites: number }[];
+  } | null>(null);
+  const [loadingAnalytics, setLoadingAnalytics] = useState(false);
+
+  // User plan state
+  const [userPlan, setUserPlan] = useState<{
+    plan: string;
+    rewritesUsed: number;
+    rewritesLimit: number;
+    canRewrite: boolean;
+    resetDate: Date;
+  } | null>(null);
+
+  // Fetch user rewrite history
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) return;
+    setLoadingHistory(true);
+    setHistoryError("");
+    fetch("/api/rewrite/history")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to fetch history");
+        return res.json();
+      })
+      .then((data) => {
+        setHistory(data);
+        setLoadingHistory(false);
+      })
+      .catch((err) => {
+        setHistoryError("Could not load rewrite history.");
+        setLoadingHistory(false);
+      });
+  }, [isLoaded, isSignedIn]);
+
+  // Fetch analytics
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) return;
+    setLoadingAnalytics(true);
+    fetch("/api/analytics")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to fetch analytics");
+        return res.json();
+      })
+      .then((data) => {
+        setAnalytics(data);
+        setLoadingAnalytics(false);
+      })
+      .catch((err) => {
+        console.error("Analytics error:", err);
+        setLoadingAnalytics(false);
+      });
+  }, [isLoaded, isSignedIn]);
+
+  // Fetch user plan
+  const fetchUserPlan = useCallback(() => {
+    if (!isLoaded || !isSignedIn) return;
+    console.log("Fetching user plan...");
+    fetch("/api/user/plan")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to fetch user plan");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("User plan data received:", data);
+        setUserPlan(data);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch user plan:", err);
+      });
+  }, [isLoaded, isSignedIn]);
+
+  useEffect(() => {
+    fetchUserPlan();
+  }, [isLoaded, isSignedIn]);
+
+  // Delete a rewrite
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this rewrite?")) return;
+    await fetch(`/api/rewrite/history?id=${id}`, { method: "DELETE" });
+    setHistory((h) => h.filter((item) => item.id !== id));
+  };
+
+  // TODO: Add edit functionality (modal or inline)
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-reddit mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container-responsive py-6 lg:py-8">
-        <div className="mb-6 lg:mb-8">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+    <>
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-reddit rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-sm">R</span>
+              </div>
+              <span className="text-xl font-bold text-gray-900">RedditFit</span>
+            </Link>
+
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                {userPlan
+                  ? userPlan.plan === "free"
+                    ? userPlan.canRewrite
+                      ? `${
+                          userPlan.rewritesLimit - userPlan.rewritesUsed
+                        } rewrites remaining`
+                      : "0 rewrites remaining"
+                    : "∞ unlimited rewrites"
+                  : "Loading..."}
+              </div>
+
+              {/* Upgrade Button - Show when user has reached limit */}
+              {userPlan && userPlan.plan === "free" && !userPlan.canRewrite && (
+                <Link
+                  href="/pricing"
+                  className="bg-reddit text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors text-sm"
+                >
+                  Upgrade to Pro
+                </Link>
+              )}
+
+              <UserButton />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 relative">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
             RedditFit Dashboard
           </h1>
-          <p className="text-gray-600 text-readable">
-            Welcome back! Here's your RedditFit overview.
+          <p className="text-gray-600 mt-2">
+            AI-powered Reddit post optimization
           </p>
         </div>
 
-        <div className="layout-responsive">
-          {/* Main Content - Post Rewriter */}
-          <div className="lg:col-span-2">
-            <PostRewriter />
-          </div>
-
-          {/* Analytics Sidebar */}
-          <div className="lg:col-span-1">
-            <DashboardAnalytics />
+        {/* Main Content */}
+        <div className="grid grid-cols-1 gap-8 relative">
+          {/* Post Rewriter */}
+          <div className="relative z-10">
+            <PostRewriter onRewriteComplete={fetchUserPlan} />
           </div>
         </div>
 
-        {/* User History */}
-        <div className="mt-8 lg:mt-12">
-          <UserHistory />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DashboardAnalytics() {
-  const [analytics, setAnalytics] = useState<Analytics | null>(null);
-  const [loadingAnalytics, setLoadingAnalytics] = useState(true);
-
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const response = await fetch("/api/analytics");
-        if (response.ok) {
-          const data = await response.json();
-          setAnalytics(data);
-        }
-      } catch (error) {
-        console.error("Failed to fetch analytics:", error);
-      } finally {
-        setLoadingAnalytics(false);
-      }
-    };
-
-    fetchAnalytics();
-  }, []);
-
-  if (loadingAnalytics) {
-    return (
-      <div className="card">
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-reddit"></div>
-          <span className="ml-3 text-gray-600">Loading analytics...</span>
-        </div>
-      </div>
-    );
-  }
-
-  if (!analytics) {
-    return (
-      <div className="card">
-        <div className="text-center py-8">
-          <p className="text-gray-600 text-readable">
-            Unable to load analytics
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Quick Stats */}
-      <div className="card">
-        <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">
-          Quick Stats
-        </h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl lg:text-3xl font-bold text-blue-600">
-              {analytics.totalRewrites}
-            </div>
-            <div className="text-sm lg:text-base text-blue-700 font-medium">
-              Total Rewrites
-            </div>
-          </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl lg:text-3xl font-bold text-green-600">
-              {analytics.averageCompliance}%
-            </div>
-            <div className="text-sm lg:text-base text-green-700 font-medium">
-              Avg Compliance
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Top Subreddits */}
-      {analytics.topSubreddits.length > 0 && (
-        <div className="card">
-          <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">
-            Top Subreddits
-          </h3>
-          <div className="space-y-3">
-            {analytics.topSubreddits.slice(0, 5).map((item, index) => (
-              <div
-                key={item.subreddit}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
-                <div className="flex items-center">
-                  <span className="text-sm lg:text-base font-medium text-gray-600 mr-2">
-                    #{index + 1}
-                  </span>
-                  <span className="text-sm lg:text-base font-semibold text-gray-900">
-                    r/{item.subreddit}
-                  </span>
-                </div>
-                <span className="text-sm lg:text-base font-bold text-reddit">
-                  {item.count}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Recent Activity */}
-      {analytics.recentTrends.length > 0 && (
-        <div className="card">
-          <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-4 lg:mb-6">
-            This Week
-          </h3>
-          <div className="space-y-2">
-            {analytics.recentTrends.slice(-7).map((day) => (
-              <div key={day.date} className="flex items-center justify-between">
-                <span className="text-sm lg:text-base text-gray-600">
-                  {new Date(day.date).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </span>
-                <span className="text-sm lg:text-base font-semibold text-gray-900">
-                  {day.rewrites}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function UserHistory() {
-  const [history, setHistory] = useState<Post[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(true);
-  const [historyError, setHistoryError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const response = await fetch("/api/rewrite/history");
-        if (response.ok) {
-          const data = await response.json();
-          setHistory(data);
-        } else {
-          setHistoryError("Failed to load history");
-        }
-      } catch (error) {
-        console.error("Failed to fetch history:", error);
-        setHistoryError("Failed to load history");
-      } finally {
-        setLoadingHistory(false);
-      }
-    };
-
-    fetchHistory();
-  }, []);
-
-  const handleDelete = async (id: string) => {
-    try {
-      const response = await fetch(`/api/rewrite/history?id=${id}`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        setHistory(history.filter((post) => post.id !== id));
-      }
-    } catch (error) {
-      console.error("Failed to delete post:", error);
-    }
-  };
-
-  const getComplianceColor = (score: number) => {
-    if (score >= 90) return "bg-green-100 text-green-800";
-    if (score >= 70) return "bg-yellow-100 text-yellow-800";
-    return "bg-red-100 text-red-800";
-  };
-
-  if (loadingHistory) {
-    return (
-      <div className="card">
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-reddit"></div>
-          <span className="ml-3 text-gray-600 text-readable">
-            Loading your history...
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  if (historyError) {
-    return (
-      <div className="card">
-        <div className="text-center py-8">
-          <p className="text-gray-600 text-readable">{historyError}</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl lg:text-2xl font-bold text-gray-900">
-          Your Rewrite History (RedditFit)
-        </h2>
-        <span className="text-sm lg:text-base text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-          {history.length} posts
-        </span>
-      </div>
-
-      {history.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600 text-readable mb-2">No rewrites yet</p>
-          <p className="text-sm text-gray-500">
-            Start by rewriting your first post above!
-          </p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full table-responsive">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm lg:text-base">
-                  Original Title
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm lg:text-base">
-                  Rewritten Title
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm lg:text-base">
-                  Subreddit
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm lg:text-base">
-                  Compliance
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm lg:text-base">
-                  Date
-                </th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-900 text-sm lg:text-base">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {history.map((post) => (
-                <tr key={post.id} className="hover:bg-gray-50">
-                  <td className="py-3 px-4">
-                    <div className="max-w-xs">
-                      <p className="text-sm lg:text-base text-gray-900 font-medium break-words">
-                        {post.originalTitle}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="max-w-xs">
-                      <p className="text-sm lg:text-base text-gray-900 break-words">
-                        {post.rewrittenTitle}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="text-sm lg:text-base text-gray-600">
-                      r/{post.subreddit}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs lg:text-sm font-medium ${getComplianceColor(
-                        post.complianceScore
-                      )}`}
-                    >
-                      {post.complianceScore}%
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="text-sm lg:text-base text-gray-600">
-                      {new Date(post.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <button
-                      onClick={() => handleDelete(post.id)}
-                      className="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors"
-                      title="Delete post"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+        {/* User Rewrite History */}
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            Your Rewrite History
+          </h2>
+          {loadingHistory ? (
+            <div className="text-gray-500">Loading history...</div>
+          ) : historyError ? (
+            <div className="text-red-500">{historyError}</div>
+          ) : history.length === 0 ? (
+            <div className="text-gray-600">No rewrites yet.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                      Original Title
+                    </th>
+                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                      Rewritten Title
+                    </th>
+                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                      Subreddit
+                    </th>
+                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                      Compliance
+                    </th>
+                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                      Date
+                    </th>
+                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {history.map((item) => (
+                    <tr key={item.id} className="border-t">
+                      <td
+                        className="px-4 py-2 max-w-xs truncate"
+                        title={item.originalTitle}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {item.originalTitle}
+                      </td>
+                      <td
+                        className="px-4 py-2 max-w-xs truncate"
+                        title={item.rewrittenTitle}
+                      >
+                        {item.rewrittenTitle}
+                      </td>
+                      <td className="px-4 py-2">r/{item.subreddit}</td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            item.complianceScore >= 90
+                              ? "bg-green-100 text-green-800"
+                              : item.complianceScore >= 70
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {item.complianceScore}%
+                        </span>
+                      </td>
+                      <td className="px-4 py-2 text-xs text-gray-500">
+                        {new Date(item.createdAt).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-2">
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="text-red-600 hover:underline text-sm"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-300 py-12 mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Brand */}
+            <div className="flex flex-col">
+              <div className="flex items-center space-x-2 mb-4">
+                <div className="w-8 h-8 bg-reddit rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">R</span>
+                </div>
+                <span className="text-xl font-bold text-white">RedditFit</span>
+              </div>
+              <p className="text-sm text-gray-400 mb-4">
+                Make every Reddit post rule-proof with AI-powered rewriting.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div className="flex flex-col">
+              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
+              <div className="flex flex-col space-y-2">
+                <Link
+                  href="/"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Home
+                </Link>
+                <Link
+                  href="/pricing"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Pricing
+                </Link>
+              </div>
+            </div>
+
+            {/* Legal */}
+            <div className="flex flex-col">
+              <h3 className="text-white font-semibold mb-4">Legal</h3>
+              <div className="flex flex-col space-y-2">
+                <Link
+                  href="/terms"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Terms of Service
+                </Link>
+                <Link
+                  href="/privacy"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
+            <div className="text-sm text-gray-400">
+              © 2024 RedditFit. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }
