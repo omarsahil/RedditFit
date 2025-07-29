@@ -32,6 +32,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
     complianceScore: number;
     changes: string[];
   } | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Bulk rewrite state
   const [isBulkMode, setIsBulkMode] = useState(false);
@@ -134,6 +135,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
     setRuleAnalysis(null);
 
     try {
+      setApiError(null);
       console.log("Sending rewrite request:", {
         title: postTitle,
         subreddit,
@@ -159,6 +161,11 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
+        setApiError(
+          errorData.error ||
+            errorData.details ||
+            `HTTP ${response.status}: ${response.statusText}`
+        );
         console.error("API Error:", errorData);
 
         // Handle limit reached error
@@ -225,6 +232,7 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
       // Show user-friendly error message
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
+      setApiError(errorMessage);
 
       // Show error in the UI instead of alert
       setResult({
@@ -405,9 +413,9 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
         document.body.appendChild(textArea);
         textArea.focus();
         textArea.select();
-        
+
         try {
-          document.execCommand('copy');
+          document.execCommand("copy");
           setCopySuccess(`${type} copied!`);
           setTimeout(() => setCopySuccess(""), 2000);
         } catch (fallbackErr) {
@@ -499,6 +507,13 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
               )}
             </div>
           </div>
+
+          {/* Show API error if present */}
+          {apiError && (
+            <div className="mb-4 bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">
+              <strong>Error:</strong> {apiError}
+            </div>
+          )}
 
           {!isBulkMode || (userPlan && userPlan.plan !== "pro") ? (
             /* Single Post Form */
@@ -961,7 +976,9 @@ export function PostRewriter({ onRewriteComplete }: PostRewriterProps) {
                   <button
                     onClick={() =>
                       copyToClipboard(
-                        `${result.rewrittenTitle}\n\n${result.rewrittenBody || ''}`,
+                        `${result.rewrittenTitle}\n\n${
+                          result.rewrittenBody || ""
+                        }`,
                         "Post"
                       )
                     }
