@@ -17,6 +17,8 @@ export default function DashboardClient() {
   const [historyError, setHistoryError] = useState("");
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
+  const [diagnosticInfo, setDiagnosticInfo] = useState<any>(null);
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
 
   // Analytics state
   const [analytics, setAnalytics] = useState<{
@@ -45,7 +47,9 @@ export default function DashboardClient() {
       .then(async (res) => {
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
-          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+          throw new Error(
+            errorData.error || `HTTP ${res.status}: ${res.statusText}`
+          );
         }
         return res.json();
       })
@@ -68,7 +72,9 @@ export default function DashboardClient() {
       .then(async (res) => {
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
-          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+          throw new Error(
+            errorData.error || `HTTP ${res.status}: ${res.statusText}`
+          );
         }
         return res.json();
       })
@@ -90,7 +96,9 @@ export default function DashboardClient() {
       .then(async (res) => {
         if (!res.ok) {
           const errorData = await res.json().catch(() => ({}));
-          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+          throw new Error(
+            errorData.error || `HTTP ${res.status}: ${res.statusText}`
+          );
         }
         return res.json();
       })
@@ -134,6 +142,20 @@ export default function DashboardClient() {
       setTimeout(() => setCopySuccess(null), 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
+    }
+  };
+
+  // Run diagnostic
+  const runDiagnostic = async () => {
+    try {
+      const response = await fetch("/api/dashboard/status");
+      const data = await response.json();
+      setDiagnosticInfo(data);
+      setShowDiagnostic(true);
+    } catch (error) {
+      console.error("Diagnostic failed:", error);
+      setDiagnosticInfo({ error: "Failed to run diagnostic" });
+      setShowDiagnostic(true);
     }
   };
 
@@ -215,6 +237,38 @@ export default function DashboardClient() {
 
         {/* Main Content */}
         <div className="grid grid-cols-1 gap-8 relative">
+          {/* Diagnostic Button */}
+          <div className="flex justify-end">
+            <button
+              onClick={runDiagnostic}
+              className="text-sm text-gray-600 hover:text-gray-800 underline"
+            >
+              Run Diagnostic
+            </button>
+          </div>
+
+          {/* Diagnostic Modal */}
+          {showDiagnostic && diagnosticInfo && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 max-w-2xl max-h-96 overflow-y-auto">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold">
+                    Dashboard Diagnostic
+                  </h3>
+                  <button
+                    onClick={() => setShowDiagnostic(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <pre className="text-xs bg-gray-100 p-4 rounded overflow-x-auto">
+                  {JSON.stringify(diagnosticInfo, null, 2)}
+                </pre>
+              </div>
+            </div>
+          )}
+
           {/* Post Rewriter */}
           <div className="relative z-10">
             <PostRewriter onRewriteComplete={fetchUserPlan} />
