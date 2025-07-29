@@ -130,8 +130,8 @@ async function rewriteWithLLM({
       headers: {
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": "https://reddifit.com",
-        "X-Title": "ReddiFit - AI Post Rewriter",
+        "HTTP-Referer": "https://redditfit.com",
+        "X-Title": "RedditFit - AI Post Rewriter",
       },
       body: JSON.stringify({
         model: aiModel,
@@ -314,7 +314,10 @@ export async function POST(request: NextRequest) {
       await incrementRewriteCount(userId);
       logger.info("Incremented rewrite count for user", { userId });
     } catch (e) {
-      logger.error("Failed to save to database", { userId, error: e instanceof Error ? e.message : String(e) });
+      logger.error("Failed to save to database", {
+        userId,
+        error: e instanceof Error ? e.message : String(e),
+      });
       // Don't fail the entire request if database save fails
     }
 

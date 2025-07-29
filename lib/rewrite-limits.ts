@@ -26,7 +26,7 @@ export async function getUserPlan(userId: string): Promise<UserPlan> {
         email: "", // Will be updated when user signs up
         plan: "free",
         rewritesUsed: 0,
-        rewritesLimit: 1,
+        rewritesLimit: 3,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -44,17 +44,17 @@ export async function getUserPlan(userId: string): Promise<UserPlan> {
 
     const userData = user[0];
 
-    // Update existing free users to have 1 rewrite limit if they don't already
-    if (userData.plan === "free" && userData.rewritesLimit !== 1) {
+    // Update existing free users to have 3 rewrite limit if they don't already
+    if (userData.plan === "free" && userData.rewritesLimit !== 3) {
       await db
         .update(users)
         .set({
-          rewritesLimit: 1,
+          rewritesLimit: 3,
           updatedAt: new Date(),
         })
         .where(eq(users.clerkId, userId));
 
-      userData.rewritesLimit = 1;
+      userData.rewritesLimit = 3;
     }
 
     // Check if we need to reset daily limits (for free users)
@@ -96,7 +96,7 @@ export async function getUserPlan(userId: string): Promise<UserPlan> {
     return {
       plan: "free",
       rewritesUsed: 0,
-      rewritesLimit: 1,
+      rewritesLimit: 3,
       canRewrite: true,
       resetDate: getNextResetDate(),
     };
@@ -154,9 +154,9 @@ export function getPlanLimits(plan: string): {
   switch (plan) {
     case "free":
       return {
-        rewritesLimit: 1,
+        rewritesLimit: 3,
         features: [
-          "1 free rewrite per day",
+          "3 free rewrites per day",
           "Basic AI optimization",
           "Subreddit rules analysis",
           "Compliance scoring",
@@ -179,9 +179,9 @@ export function getPlanLimits(plan: string): {
       };
     default:
       return {
-        rewritesLimit: 1,
+        rewritesLimit: 3,
         features: [
-          "1 free rewrite per day",
+          "3 free rewrites per day",
           "Basic AI optimization",
           "Subreddit rules analysis",
           "Compliance scoring",

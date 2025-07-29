@@ -97,8 +97,8 @@ export default function HomePage() {
 
             <div className="mt-8 flex flex-col items-center space-y-2 text-sm text-gray-500">
               <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-1" />1 free
-                rewrite per day
+                <CheckCircle className="w-4 h-4 text-green-500 mr-1" />3 free
+                rewrites per day
               </div>
               <div className="flex items-center">
                 <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
@@ -168,10 +168,10 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              See ReddiFit in Action
+              See RedditFit in Action
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Watch how ReddiFit transforms your posts to comply with subreddit
+              Watch how RedditFit transforms your posts to comply with subreddit
               rules and boost engagement
             </p>
           </div>
@@ -183,27 +183,32 @@ export default function HomePage() {
                 <div className="flex items-center mb-3">
                   <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
                   <span className="text-sm font-semibold text-red-700">
-                    BEFORE - Rule Violations
+                    BEFORE - Multiple Rule Violations
                   </span>
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">
-                  "Help me with my coding homework please"
+                  "Just got my first 100 customers! Here's how I built my app in
+                  2 weeks and made $10k"
                 </h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  Posted to r/programming
+                  Posted to r/startups
                 </p>
                 <div className="space-y-2">
                   <div className="flex items-center text-sm text-red-600">
                     <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                    Violates "No Homework Help" rule
+                    Violates "No Success Story" rule without proper format
                   </div>
                   <div className="flex items-center text-sm text-red-600">
                     <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                    Vague title, no context provided
+                    Missing required "How I Built" flair
                   </div>
                   <div className="flex items-center text-sm text-red-600">
                     <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
-                    Likely to be removed by moderators
+                    Claims need verification and detailed breakdown
+                  </div>
+                  <div className="flex items-center text-sm text-red-600">
+                    <span className="w-2 h-2 bg-red-500 rounded-full mr-2"></span>
+                    Should include specific metrics and lessons learned
                   </div>
                 </div>
               </div>
@@ -212,27 +217,32 @@ export default function HomePage() {
                 <div className="flex items-center mb-3">
                   <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
                   <span className="text-sm font-semibold text-green-700">
-                    AFTER - ReddiFit Optimized
+                    AFTER - RedditFit Optimized
                   </span>
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2">
-                  "Best practices for debugging JavaScript async/await issues?"
+                  "[How I Built] Reached 100 customers in 2 weeks: My journey
+                  building a productivity app"
                 </h3>
                 <p className="text-sm text-gray-600 mb-3">
-                  Posted to r/programming
+                  Posted to r/startups
                 </p>
                 <div className="space-y-2">
                   <div className="flex items-center text-sm text-green-600">
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    Follows community guidelines
+                    Proper "How I Built" flair for success stories
                   </div>
                   <div className="flex items-center text-sm text-green-600">
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    Clear, descriptive title
+                    Includes specific metrics and timeline
                   </div>
                   <div className="flex items-center text-sm text-green-600">
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    95% compliance score
+                    Focuses on journey and lessons learned
+                  </div>
+                  <div className="flex items-center text-sm text-green-600">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    97% compliance score
                   </div>
                 </div>
               </div>
@@ -275,7 +285,7 @@ export default function HomePage() {
                 </h3>
                 <p className="text-gray-600">
                   Users report 3x higher post approval rates and 2x more
-                  engagement after using ReddiFit.
+                  engagement after using RedditFit.
                 </p>
               </div>
             </div>
@@ -294,7 +304,9 @@ export default function HomePage() {
               </div>
               <div>
                 <div className="text-3xl font-bold text-reddit mb-2">500+</div>
-                <div className="text-sm text-gray-600">Subreddits Supported</div>
+                <div className="text-sm text-gray-600">
+                  Subreddits Supported
+                </div>
               </div>
               <div>
                 <div className="text-3xl font-bold text-reddit mb-2">2.5x</div>
@@ -308,7 +320,7 @@ export default function HomePage() {
             <SignedOut>
               <SignUpButton mode="modal">
                 <button className="btn-primary text-lg px-8 py-4">
-                  Try ReddiFit Free
+                  Try RedditFit Free
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </button>
               </SignUpButton>
@@ -354,7 +366,7 @@ export default function HomePage() {
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                    <span className="text-sm">1 free rewrite per day</span>
+                    <span className="text-sm">3 free rewrites per day</span>
                   </li>
                   <li className="flex items-center">
                     <CheckCircle className="w-4 h-4 text-green-500 mr-2" />

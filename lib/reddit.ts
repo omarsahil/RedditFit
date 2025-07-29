@@ -6,7 +6,7 @@ export async function getSubredditRules(subreddit: string) {
       `https://www.reddit.com/r/${subreddit}/about/rules.json`,
       {
         headers: {
-          "User-Agent": "ReddiFit/1.0.0",
+          "User-Agent": "RedditFit/1.0.0",
         },
       }
     );

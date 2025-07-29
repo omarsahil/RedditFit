@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT NOT NULL,
   plan TEXT NOT NULL DEFAULT 'free', -- free, pro
   rewrites_used INTEGER NOT NULL DEFAULT 0,
-  rewrites_limit INTEGER NOT NULL DEFAULT 1,
+  rewrites_limit INTEGER NOT NULL DEFAULT 3,
   created_at TIMESTAMP DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMP DEFAULT NOW() NOT NULL
 );

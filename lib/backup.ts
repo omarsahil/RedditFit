@@ -274,7 +274,7 @@ export async function handleBackupExport(userId: string) {
     return {
       success: true,
       data: backupJson,
-      filename: `reddifit-backup-${userId}-${
+      filename: `redditfit-backup-${userId}-${
         new Date().toISOString().split("T")[0]
       }.json`,
     };

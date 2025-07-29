@@ -57,7 +57,7 @@ export default function PricingPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-center">
                 <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">1 free rewrite per day</span>
+                <span className="text-gray-700">3 free rewrites per day</span>
               </li>
               <li className="flex items-center">
                 <Check className="w-5 h-5 text-green-500 mr-3" />

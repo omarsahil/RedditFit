@@ -7,7 +7,7 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "RedditFit - Make Every Reddit Post Rule-Proof",
+  title: "redditfit - Make Every Reddit Post Rule-Proof",
   description:
     "AI-powered assistant that rewrites your Reddit posts to comply with subreddit rules and boost karma.",
 };
