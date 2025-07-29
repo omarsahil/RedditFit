@@ -463,7 +463,9 @@ export default function HomePage() {
                   </li>
                 </ul>
 
-                <button className="btn-primary w-full">Coming Soon</button>
+                <Link href="/pricing" className="btn-primary w-full block text-center">
+                  View Pricing
+                </Link>
               </div>
             </div>
           </div>

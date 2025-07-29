@@ -193,7 +193,7 @@ export function getPlanFromDodoPlanId(planId: string): {
     case "pro-monthly":
       return {
         plan: "pro",
-        rewritesLimit: 200,
+        rewritesLimit: -1, // Unlimited
       };
     case "unlimited-monthly":
       return {

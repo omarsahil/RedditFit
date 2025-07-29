@@ -9,44 +9,30 @@ export default function PricingPage() {
   const { user, isSignedIn } = useUser();
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
-  const handlePlanSelect = async (planId: string) => {
+  // Replace the handlePlanSelect function with direct redirect for 'pro' plan
+  const handlePlanSelect = (planId: string) => {
     if (!isSignedIn) {
       // Redirect to sign in if user is not authenticated
       window.location.href = "/sign-in?redirect=/pricing";
       return;
     }
 
+    if (planId === "pro-monthly") {
+      // Redirect directly to DodoPayments checkout
+      const productId = "pdt_1YatYZDS2O1kCtd53stEM";
+      const redirectUrl =
+        typeof window !== "undefined"
+          ? window.location.origin + "/dashboard"
+          : "https://reddit-fit.vercel.app/dashboard";
+      window.location.href = `https://checkout.dodopayments.com/buy/${productId}?quantity=1&redirect_url=${encodeURIComponent(
+        redirectUrl
+      )}`;
+      return;
+    }
+
     setIsProcessing(planId);
 
-    try {
-      // Create payment intent and redirect to Dodo payment checkout
-      const response = await fetch("/api/payment/create-intent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ planId }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create payment");
-      }
-
-      const { checkoutUrl } = await response.json();
-
-      // Redirect to Dodo payment checkout
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-      } else {
-        throw new Error("No checkout URL received");
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      alert("Failed to start payment process. Please try again.");
-    } finally {
-      setIsProcessing(null);
-    }
+    // If you have other plans, handle them here
   };
 
   const getPlanFeatures = (planId: string) => {
