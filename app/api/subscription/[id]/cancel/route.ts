@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createDodoPaymentClient } from "@/lib/dodopayment";
 import { db, users } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/monitoring";
@@ -25,49 +24,31 @@ export async function POST(
       );
     }
 
-    const dodoPayment = createDodoPaymentClient();
+    // Update user to free plan (simulate subscription cancellation)
+    await db
+      .update(users)
+      .set({
+        plan: "free",
+        rewritesLimit: 3,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.clerkId, userId));
 
-    // In a real implementation, you would cancel the subscription with DodoPayment
-    // For now, we'll simulate the cancellation by updating the user's plan
-    try {
-      // Cancel subscription with DodoPayment
-      await dodoPayment.cancelSubscription(subscriptionId);
+    logger.info("Subscription cancelled", {
+      userId,
+      subscriptionId,
+    });
 
-      // Update user to free plan
-      await db
-        .update(users)
-        .set({
-          plan: "free",
-          rewritesLimit: 3,
-          updatedAt: new Date(),
-        })
-        .where(eq(users.clerkId, userId));
-
-      logger.info("Subscription cancelled", {
-        userId,
-        subscriptionId,
-      });
-
-      return NextResponse.json({ success: true });
-    } catch (error) {
-      logger.error("Error cancelling subscription", {
-        userId,
-        subscriptionId,
-        error: error instanceof Error ? error.message : String(error),
-      });
-
-      return NextResponse.json(
-        { error: "Failed to cancel subscription" },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json({ success: true });
   } catch (error) {
-    logger.error("Error in cancel subscription route", {
+    logger.error("Error cancelling subscription", {
+      userId: userId || "unknown",
+      subscriptionId: params.id,
       error: error instanceof Error ? error.message : String(error),
     });
 
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to cancel subscription" },
       { status: 500 }
     );
   }

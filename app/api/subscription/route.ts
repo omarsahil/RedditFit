@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { createDodoPaymentClient } from "@/lib/dodopayment";
 import { db, users } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { logger } from "@/lib/monitoring";
@@ -30,22 +29,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ subscription: null });
     }
 
-    // In a real implementation, you would fetch the actual subscription from DodoPayment
-    // For now, we'll return a mock subscription based on the user's plan
-    const dodoPayment = createDodoPaymentClient();
-    const plans = dodoPayment.getAvailablePlans();
-    const plan = plans.find((p) => p.rewritesLimit === userData.rewritesLimit);
-
-    if (!plan) {
-      return NextResponse.json({ subscription: null });
-    }
-
-    // Mock subscription data
+    // Return mock subscription data based on user's plan
     const subscription = {
       id: `sub_${userId}`,
       status: "active",
-      planId: plan.id,
-      planName: plan.name,
+      planId: userData.plan === "pro" ? "pro-monthly" : "basic-monthly",
+      planName: userData.plan === "pro" ? "Pro Plan" : "Basic Plan",
       currentPeriodEnd: new Date(
         Date.now() + 30 * 24 * 60 * 60 * 1000
       ).toISOString(), // 30 days from now
