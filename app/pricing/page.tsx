@@ -4,20 +4,22 @@ import { useState } from "react";
 import { Check, Clock, Star, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
-import { useEffect } from "react";
+import { SignInButton } from "@clerk/nextjs";
+import { useRef, useEffect } from "react";
 
 export default function PricingPage() {
   const { user, isSignedIn } = useUser();
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
   const [showLoginMessage, setShowLoginMessage] = useState(false);
+  const signInBtnRef = useRef<HTMLButtonElement>(null);
 
   // Replace the handlePlanSelect function with direct redirect for 'pro' plan
   const handlePlanSelect = (planId: string) => {
     if (!isSignedIn) {
       setShowLoginMessage(true);
       setTimeout(() => {
-        window.location.href = "/sign-in?redirect=/pricing";
-      }, 1800);
+        signInBtnRef.current?.click();
+      }, 1200);
       return;
     }
 
@@ -73,6 +75,10 @@ export default function PricingPage() {
           </div>
         </div>
       )}
+      {/* Hidden SignInButton for modal trigger */}
+      <SignInButton mode="modal">
+        <button ref={signInBtnRef} style={{ display: "none" }} />
+      </SignInButton>
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
