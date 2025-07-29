@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const BREVO_SMTP_KEY = process.env.BREVO_SMTP_KEY; // Alternative SMTP key
 const BREVO_LIST_ID = process.env.BREVO_LIST_ID || "2"; // Default list ID
 const BREVO_API_URL = "https://api.brevo.com/v3/contacts";
 
@@ -8,12 +9,17 @@ export async function POST(request: NextRequest) {
   try {
     console.log("Environment check:", {
       hasApiKey: !!BREVO_API_KEY,
+      hasSmtpKey: !!BREVO_SMTP_KEY,
       apiKeyLength: BREVO_API_KEY?.length,
+      smtpKeyLength: BREVO_SMTP_KEY?.length,
       listId: BREVO_LIST_ID,
     });
 
-    if (!BREVO_API_KEY) {
-      console.error("BREVO_API_KEY not configured");
+    // Use API key if available, otherwise use SMTP key
+    const apiKey = BREVO_API_KEY || BREVO_SMTP_KEY;
+
+    if (!apiKey) {
+      console.error("No Brevo API key or SMTP key configured");
       return NextResponse.json(
         { error: "Email service not configured" },
         { status: 500 }
@@ -34,7 +40,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "api-key": BREVO_API_KEY,
+        "api-key": apiKey,
       },
       body: JSON.stringify({
         email: email,
