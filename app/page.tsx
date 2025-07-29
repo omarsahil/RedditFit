@@ -15,6 +15,7 @@ import {
   Lock,
 } from "lucide-react";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 
 export default function HomePage() {
   return (
@@ -463,7 +464,10 @@ export default function HomePage() {
                   </li>
                 </ul>
 
-                <Link href="/pricing" className="btn-primary w-full block text-center">
+                <Link
+                  href="/pricing"
+                  className="btn-primary w-full block text-center"
+                >
                   View Pricing
                 </Link>
               </div>
@@ -503,63 +507,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Brand */}
-            <div className="flex flex-col">
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 bg-reddit rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">R</span>
-                </div>
-                <span className="text-xl font-bold text-white">RedditFit</span>
-              </div>
-              <p className="text-sm text-gray-400 mb-4">
-                Make every Reddit post rule-proof with AI-powered rewriting.
-              </p>
-            </div>
-
-            {/* Quick Links */}
-            <div className="flex flex-col">
-              <h3 className="text-white font-semibold mb-4">Quick Links</h3>
-              <div className="flex flex-col space-y-2">
-                <Link
-                  href="/pricing"
-                  className="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  Pricing
-                </Link>
-              </div>
-            </div>
-
-            {/* Legal */}
-            <div className="flex flex-col">
-              <h3 className="text-white font-semibold mb-4">Legal</h3>
-              <div className="flex flex-col space-y-2">
-                <Link
-                  href="/terms"
-                  className="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  Terms of Service
-                </Link>
-                <Link
-                  href="/privacy"
-                  className="text-gray-400 hover:text-white text-sm transition-colors"
-                >
-                  Privacy Policy
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center">
-            <div className="text-sm text-gray-400">
-              © 2024 RedditFit. All rights reserved.
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
