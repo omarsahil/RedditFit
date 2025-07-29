@@ -111,7 +111,14 @@ export default function HomePage() {
                   <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
                 </Link>
               </SignedIn>
-              <button className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
+              <button
+                onClick={() => {
+                  document.getElementById("demo-section")?.scrollIntoView({
+                    behavior: "smooth",
+                  });
+                }}
+                className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
+              >
                 Watch Demo
               </button>
             </div>
@@ -191,7 +198,7 @@ export default function HomePage() {
       </section>
 
       {/* See App in Action Section */}
-      <section className="py-20 bg-white">
+      <section id="demo-section" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
