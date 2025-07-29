@@ -10,7 +10,7 @@ import { caches, cacheUtils } from "@/lib/cache";
 import { logger } from "@/lib/monitoring";
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_MODEL = "openai/gpt-4o";
+const OPENROUTER_MODEL = "mistralai/mistral-large";
 
 function buildPrompt({
   title,
@@ -123,29 +123,26 @@ async function rewriteWithLLM({
 
   console.log("LLM Prompt:", prompt);
 
-  const response = await fetch(
-    "https://openrouter.ai/api/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://redditfit.com",
-        "X-Title": "RedditFit - AI Post Rewriter",
-      },
-      body: JSON.stringify({
-        model: aiModel,
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: creativity,
-        max_tokens: 1000,
-      }),
-    }
-  );
+  const response = await fetch(OPENROUTER_API_URL, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://redditfit.com",
+      "X-Title": "RedditFit - AI Post Rewriter",
+    },
+    body: JSON.stringify({
+      model: OPENROUTER_MODEL,
+      messages: [
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      temperature: creativity,
+      max_tokens: 1000,
+    }),
+  });
 
   if (!response.ok) {
     const errorText = await response.text();
