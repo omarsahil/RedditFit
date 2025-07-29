@@ -43,7 +43,10 @@ export default function DashboardClient() {
     setHistoryError("");
     fetch("/api/rewrite/history")
       .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to fetch history");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+        }
         return res.json();
       })
       .then((data) => {
@@ -51,7 +54,8 @@ export default function DashboardClient() {
         setLoadingHistory(false);
       })
       .catch((err) => {
-        setHistoryError("Could not load rewrite history.");
+        console.error("History fetch error:", err);
+        setHistoryError(`Could not load rewrite history: ${err.message}`);
         setLoadingHistory(false);
       });
   }, [isLoaded, isSignedIn]);
@@ -62,7 +66,10 @@ export default function DashboardClient() {
     setLoadingAnalytics(true);
     fetch("/api/analytics")
       .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to fetch analytics");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+        }
         return res.json();
       })
       .then((data) => {
@@ -81,7 +88,10 @@ export default function DashboardClient() {
     console.log("Fetching user plan...");
     fetch("/api/user/plan")
       .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to fetch user plan");
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${res.status}: ${res.statusText}`);
+        }
         return res.json();
       })
       .then((data) => {
@@ -90,6 +100,7 @@ export default function DashboardClient() {
       })
       .catch((err) => {
         console.error("Failed to fetch user plan:", err);
+        // Don't set userPlan to null, keep the previous state
       });
   }, [isLoaded, isSignedIn]);
 

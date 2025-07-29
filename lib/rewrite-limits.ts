@@ -1,5 +1,6 @@
 import { db, users } from "@/lib/db";
 import { eq, and, gte } from "drizzle-orm";
+import { v4 as uuidv4 } from "uuid";
 
 export interface UserPlan {
   plan: "free" | "pro";
@@ -21,7 +22,7 @@ export async function getUserPlan(userId: string): Promise<UserPlan> {
     if (user.length === 0) {
       // Create new user with free plan
       const newUser = {
-        id: userId,
+        id: uuidv4(),
         clerkId: userId,
         email: "", // Will be updated when user signs up
         plan: "free",
