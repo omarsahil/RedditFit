@@ -1,6 +1,6 @@
 # Payment Integration Setup Guide
 
-This guide will help you set up the DodoPayment integration for RedditFit.
+This guide will help you set up the DodoPayments integration for RedditFit.
 
 ## Environment Variables
 
@@ -17,8 +17,8 @@ CLERK_SECRET_KEY=sk_test_your_clerk_secret_key
 # OpenRouter API (for AI rewrites)
 OPENROUTER_API_KEY=your_openrouter_api_key
 
-# DodoPayment Configuration
-DODOPAYMENT_API_KEY=your_dodopayment_api_key
+# DodoPayments Configuration
+DODOPAYMENT_API_KEY=your_dodopayments_api_key
 DODOPAYMENT_ENVIRONMENT=sandbox  # or 'production'
 DODOPAYMENT_WEBHOOK_SECRET=your_webhook_secret
 
@@ -28,16 +28,16 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000  # Your app URL for payment redirects
 
 ## Setup Steps
 
-### 1. DodoPayment Account Setup
+### 1. DodoPayments Account Setup
 
-1. Create a DodoPayment account at [dodopayment.com](https://dodopayment.com)
+1. Create a DodoPayments account at [app.dodopayments.com](https://app.dodopayments.com)
 2. Navigate to your dashboard
 3. Get your API keys from the API section
 4. Set up webhook endpoints
 
 ### 2. Webhook Configuration
 
-Configure the following webhook endpoint in your DodoPayment dashboard:
+Configure the following webhook endpoint in your DodoPayments dashboard:
 
 ```
 URL: https://yourdomain.com/api/payment/webhook
@@ -70,8 +70,8 @@ npm run db:migrate
 1. **User clicks "Start Pro Trial"** on the pricing page
 2. **System checks authentication** - redirects to sign-in if not authenticated
 3. **Creates checkout session** - calls `/api/payment/create-intent` with plan ID
-4. **Redirects to DodoPayment** - user completes payment on DodoPayment's hosted checkout
-5. **Webhook notification** - DodoPayment sends webhook to `/api/payment/webhook`
+4. **Redirects to DodoPayments** - user completes payment on DodoPayments' hosted checkout
+5. **Webhook notification** - DodoPayments sends webhook to `/api/payment/webhook`
 6. **Plan activation** - system updates user's plan in database
 7. **Success redirect** - user is redirected back to dashboard with success message
 
@@ -116,6 +116,21 @@ GET /api/user/plan
 Response: { plan: string, rewritesUsed: number, rewritesLimit: number, canRewrite: boolean }
 ```
 
+## DodoPayments API Endpoints
+
+The integration uses the following DodoPayments API endpoints:
+
+- **Production**: `https://api.dodopayments.com/v1`
+- **Sandbox**: `https://api-sandbox.dodopayments.com/v1`
+
+### Available Endpoints:
+
+- `POST /checkout-sessions` - Create checkout session
+- `GET /checkout-sessions/{id}` - Get checkout session
+- `POST /payment-intents` - Create payment intent
+- `GET /payment-intents/{id}` - Get payment intent
+- `POST /payment-intents/{id}/confirm` - Confirm payment intent
+
 ## Security Considerations
 
 1. **Webhook Verification**: Always verify webhook signatures
@@ -131,9 +146,9 @@ Response: { plan: string, rewritesUsed: number, rewritesLimit: number, canRewrit
 
    - Make sure you've set the `DODOPAYMENT_API_KEY` in your `.env.local` file
 
-2. **"Missing DodoPayment signature"**
+2. **"Missing DodoPayments signature"**
 
-   - Ensure your webhook endpoint is properly configured in DodoPayment dashboard
+   - Ensure your webhook endpoint is properly configured in DodoPayments dashboard
 
 3. **Payment not activating plan**
 
@@ -142,8 +157,14 @@ Response: { plan: string, rewritesUsed: number, rewritesLimit: number, canRewrit
    - Ensure webhook events are properly configured
 
 4. **Checkout URL not generated**
-   - Verify your DodoPayment API key is valid
-   - Check that the plan ID exists in your DodoPayment account
+
+   - Verify your DodoPayments API key is valid
+   - Check that the plan ID exists in your DodoPayments account
+
+5. **DNS errors for api-sandbox.dodopayments.com**
+   - Verify the API key is correct
+   - Check if you're using the right environment (sandbox vs production)
+   - Ensure your DodoPayments account is properly set up
 
 ### Testing in Development
 
@@ -151,6 +172,7 @@ Response: { plan: string, rewritesUsed: number, rewritesLimit: number, canRewrit
 2. Test with the `/test` page
 3. Check browser console for errors
 4. Monitor webhook logs
+5. The system will fallback to simulation mode if API calls fail
 
 ## Production Deployment
 
@@ -167,4 +189,5 @@ For issues with the payment integration:
 1. Check the logs for error messages
 2. Verify webhook configuration
 3. Test with sandbox mode first
-4. Contact DodoPayment support for API issues
+4. Contact DodoPayments support for API issues
+5. Visit [app.dodopayments.com](https://app.dodopayments.com) for account management

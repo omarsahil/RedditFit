@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(userPlan);
   } catch (error) {
+    const { userId } = auth();
     logger.error("Error fetching user plan", {
       error: error instanceof Error ? error.message : String(error),
       userId,

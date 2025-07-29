@@ -80,10 +80,10 @@ export async function POST(request: NextRequest) {
       sessionId: checkoutSession.id,
     });
   } catch (error) {
+    const { userId } = auth();
     logger.error("Error creating checkout session", {
       error: error instanceof Error ? error.message : String(error),
       userId,
-      planId,
     });
 
     // Return more specific error message
@@ -93,8 +93,6 @@ export async function POST(request: NextRequest) {
       {
         error: "Failed to create checkout session",
         details: errorMessage,
-        planId,
-        userId,
       },
       { status: 500 }
     );

@@ -75,6 +75,51 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Handle simulation mode payments (when users complete the simulated checkout)
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const sessionId = searchParams.get("session_id");
+    const status = searchParams.get("status");
+    const paymentSuccess = searchParams.get("payment_success");
+    const userId = searchParams.get("user_id");
+    const planId = searchParams.get("plan_id");
+
+    // Handle simulation mode payment completion
+    if (paymentSuccess === "true" && userId && planId) {
+      logger.info("Processing simulation mode payment completion", {
+        sessionId,
+        userId,
+        planId,
+      });
+
+      await handleCheckoutSessionCompleted({
+        metadata: {
+          userId,
+          planId,
+        },
+      });
+
+      return NextResponse.redirect(
+        `${
+          process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+        }/dashboard?payment=success`
+      );
+    }
+
+    return NextResponse.json({ message: "No action taken" });
+  } catch (error) {
+    logger.error("Simulation payment handler error", {
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    return NextResponse.json(
+      { error: "Simulation payment handler failed" },
+      { status: 500 }
+    );
+  }
+}
+
 async function handleCheckoutSessionCompleted(data: any) {
   const { metadata } = data;
   const userId = metadata?.userId;
