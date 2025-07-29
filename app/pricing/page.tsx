@@ -1,9 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { Check, Clock, Star, Lock } from "lucide-react";
 import Link from "next/link";
+import { PaymentForm } from "@/components/PaymentForm";
 
 export default function PricingPage() {
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+  const handlePlanSelect = (planId: string) => {
+    setSelectedPlan(planId);
+  };
+
+  const handlePaymentCancel = () => {
+    setSelectedPlan(null);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -153,12 +165,12 @@ export default function PricingPage() {
               </li>
             </ul>
 
-            <Link
-              href="/dashboard"
+            <button
+              onClick={() => handlePlanSelect("pro-monthly")}
               className="w-full bg-reddit hover:bg-reddit/90 text-white font-semibold py-3 px-4 rounded-lg text-center block transition-colors"
             >
               Start Pro Trial
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -252,6 +264,27 @@ export default function PricingPage() {
           </div>
         </div>
       </main>
+
+      {/* Payment Modal */}
+      {selectedPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <PaymentForm
+              planId={selectedPlan}
+              planName={
+                selectedPlan === "pro-monthly" ? "Pro Plan" : "Basic Plan"
+              }
+              price={selectedPlan === "pro-monthly" ? 1900 : 900}
+              onSuccess={() => {
+                setSelectedPlan(null);
+                // Optionally redirect to dashboard
+                window.location.href = "/dashboard";
+              }}
+              onCancel={handlePaymentCancel}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12 mt-20">
