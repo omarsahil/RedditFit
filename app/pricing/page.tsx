@@ -1,19 +1,76 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Clock, Star, Lock } from "lucide-react";
+import { Check, Clock, Star, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { PaymentForm } from "@/components/PaymentForm";
+import { useUser } from "@clerk/nextjs";
 
 export default function PricingPage() {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const { user, isSignedIn } = useUser();
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
-  const handlePlanSelect = (planId: string) => {
-    setSelectedPlan(planId);
+  const handlePlanSelect = async (planId: string) => {
+    if (!isSignedIn) {
+      // Redirect to sign in if user is not authenticated
+      window.location.href = "/sign-in?redirect=/pricing";
+      return;
+    }
+
+    setIsProcessing(planId);
+
+    try {
+      // Create payment intent and redirect to Dodo payment checkout
+      const response = await fetch("/api/payment/create-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ planId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create payment");
+      }
+
+      const { checkoutUrl } = await response.json();
+
+      // Redirect to Dodo payment checkout
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      } else {
+        throw new Error("No checkout URL received");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Failed to start payment process. Please try again.");
+    } finally {
+      setIsProcessing(null);
+    }
   };
 
-  const handlePaymentCancel = () => {
-    setSelectedPlan(null);
+  const getPlanFeatures = (planId: string) => {
+    switch (planId) {
+      case "free":
+        return [
+          "3 free rewrites per day",
+          "Basic AI optimization",
+          "Subreddit rules analysis",
+          "Compliance scoring",
+          "Rewrite history",
+        ];
+      case "pro-monthly":
+        return [
+          "Unlimited rewrites",
+          "Advanced AI models",
+          "Bulk rewrite mode",
+          "Custom AI tones",
+          "Priority processing",
+          "Advanced analytics",
+        ];
+      default:
+        return [];
+    }
   };
 
   return (
@@ -67,26 +124,12 @@ export default function PricingPage() {
             </div>
 
             <ul className="space-y-4 mb-8">
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">3 free rewrites per day</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Basic AI optimization</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Subreddit rules analysis</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Compliance scoring</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Rewrite history</span>
-              </li>
+              {getPlanFeatures("free").map((feature, index) => (
+                <li key={index} className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">{feature}</span>
+                </li>
+              ))}
               <li className="flex items-center opacity-50">
                 <Clock className="w-5 h-5 text-gray-400 mr-3" />
                 <span className="text-gray-500">Direct Reddit posting</span>
@@ -120,35 +163,13 @@ export default function PricingPage() {
             </div>
 
             <ul className="space-y-4 mb-8">
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Unlimited rewrites</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Advanced AI models</span>
-                <Lock className="w-4 h-4 text-gray-400 ml-2" />
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Bulk rewrite mode</span>
-                <Lock className="w-4 h-4 text-gray-400 ml-2" />
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Custom AI tones</span>
-                <Lock className="w-4 h-4 text-gray-400 ml-2" />
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Priority processing</span>
-                <Lock className="w-4 h-4 text-gray-400 ml-2" />
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Advanced analytics</span>
-                <Lock className="w-4 h-4 text-gray-400 ml-2" />
-              </li>
+              {getPlanFeatures("pro-monthly").map((feature, index) => (
+                <li key={index} className="flex items-center">
+                  <Check className="w-5 h-5 text-green-500 mr-3" />
+                  <span className="text-gray-700">{feature}</span>
+                  <Lock className="w-4 h-4 text-gray-400 ml-2" />
+                </li>
+              ))}
               <li className="flex items-center opacity-50">
                 <Clock className="w-5 h-5 text-gray-400 mr-3" />
                 <span className="text-gray-500">Direct Reddit posting</span>
@@ -167,9 +188,17 @@ export default function PricingPage() {
 
             <button
               onClick={() => handlePlanSelect("pro-monthly")}
-              className="w-full bg-reddit hover:bg-reddit/90 text-white font-semibold py-3 px-4 rounded-lg text-center block transition-colors"
+              disabled={isProcessing === "pro-monthly"}
+              className="w-full bg-reddit hover:bg-reddit/90 text-white font-semibold py-3 px-4 rounded-lg text-center block transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Start Pro Trial
+              {isProcessing === "pro-monthly" ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin inline" />
+                  Processing...
+                </>
+              ) : (
+                "Start Pro Trial"
+              )}
             </button>
           </div>
         </div>
@@ -264,27 +293,6 @@ export default function PricingPage() {
           </div>
         </div>
       </main>
-
-      {/* Payment Modal */}
-      {selectedPlan && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <PaymentForm
-              planId={selectedPlan}
-              planName={
-                selectedPlan === "pro-monthly" ? "Pro Plan" : "Basic Plan"
-              }
-              price={selectedPlan === "pro-monthly" ? 999 : 900}
-              onSuccess={() => {
-                setSelectedPlan(null);
-                // Optionally redirect to dashboard
-                window.location.href = "/dashboard";
-              }}
-              onCancel={handlePaymentCancel}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-12 mt-20">

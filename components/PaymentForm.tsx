@@ -50,35 +50,16 @@ export function PaymentForm({
 
       const { clientSecret, paymentIntentId } = await response.json();
 
-      // In a real implementation, you would integrate with DodoPayment's frontend SDK
-      // For now, we'll simulate a successful payment
-      await simulatePayment(clientSecret, paymentIntentId);
+      // Redirect to DodoPayment checkout
+      const checkoutUrl = `https://checkout.dodopayment.com/pay/${paymentIntentId}?client_secret=${clientSecret}&return_url=${encodeURIComponent(
+        window.location.origin + "/dashboard"
+      )}`;
 
-      setSuccess(true);
-      onSuccess?.();
+      window.location.href = checkoutUrl;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Payment failed");
-    } finally {
       setIsLoading(false);
     }
-  };
-
-  const simulatePayment = async (
-    clientSecret: string,
-    paymentIntentId: string
-  ) => {
-    // Simulate payment processing delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    // In a real implementation, you would:
-    // 1. Use DodoPayment's frontend SDK to collect payment method
-    // 2. Confirm the payment with the client secret
-    // 3. Handle the payment result
-
-    console.log("Payment simulation completed", {
-      clientSecret,
-      paymentIntentId,
-    });
   };
 
   const formatPrice = (price: number) => {
@@ -152,12 +133,12 @@ export function PaymentForm({
           {isLoading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Processing Payment...
+              Redirecting to Checkout...
             </>
           ) : (
             <>
               <CreditCard className="w-5 h-5 mr-2" />
-              Subscribe Now
+              Continue to Checkout
             </>
           )}
         </button>

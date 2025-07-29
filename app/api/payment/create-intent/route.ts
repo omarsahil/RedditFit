@@ -20,6 +20,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate plan ID
+    const dodoPayment = createDodoPaymentClient();
+    const availablePlans = dodoPayment.getAvailablePlans();
+    const selectedPlan = availablePlans.find((plan) => plan.id === planId);
+
+    if (!selectedPlan) {
+      return NextResponse.json({ error: "Invalid plan ID" }, { status: 400 });
+    }
+
     // Get user from database
     const user = await db
       .select()
@@ -32,31 +41,46 @@ export async function POST(request: NextRequest) {
     }
 
     const userData = user[0];
-    const dodoPayment = createDodoPaymentClient();
 
-    // Create payment intent
-    const paymentIntent = await dodoPayment.createPaymentIntent({
+    // Check if user is already on the selected plan
+    if (userData.plan === "pro" && planId === "pro-monthly") {
+      return NextResponse.json(
+        { error: "You are already subscribed to this plan" },
+        { status: 400 }
+      );
+    }
+
+    // Create checkout session with Dodo payment
+    const checkoutSession = await dodoPayment.createCheckoutSession({
       planId,
       userId,
       email: userData.email,
+      successUrl: `${
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+      }/dashboard?payment=success`,
+      cancelUrl: `${
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+      }/pricing?payment=cancelled`,
       metadata: {
         currentPlan: userData.plan,
         currentRewritesLimit: userData.rewritesLimit,
+        planName: selectedPlan.name,
+        planPrice: selectedPlan.price,
       },
     });
 
-    logger.info("Created payment intent", {
+    logger.info("Created checkout session", {
       userId,
       planId,
-      paymentIntentId: paymentIntent.id,
+      checkoutSessionId: checkoutSession.id,
     });
 
     return NextResponse.json({
-      clientSecret: paymentIntent.clientSecret,
-      paymentIntentId: paymentIntent.id,
+      checkoutUrl: checkoutSession.url,
+      sessionId: checkoutSession.id,
     });
   } catch (error) {
-    logger.error("Error creating payment intent", {
+    logger.error("Error creating checkout session", {
       error: error instanceof Error ? error.message : String(error),
       userId,
       planId,
@@ -67,7 +91,7 @@ export async function POST(request: NextRequest) {
       error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
       {
-        error: "Failed to create payment intent",
+        error: "Failed to create checkout session",
         details: errorMessage,
         planId,
         userId,
