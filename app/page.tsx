@@ -21,7 +21,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-2">
@@ -31,16 +31,17 @@ export default function HomePage() {
               <span className="text-xl font-bold text-gray-900">RedditFit</span>
             </div>
 
-            <div className="flex items-center space-x-4">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
               <Link
                 href="/pricing"
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 transition-colors"
               >
                 Pricing
               </Link>
               <SignedOut>
                 <SignInButton mode="modal">
-                  <button className="text-gray-600 hover:text-gray-900 font-medium">
+                  <button className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
                     Sign In
                   </button>
                 </SignInButton>
@@ -55,58 +56,77 @@ export default function HomePage() {
                 <UserButton afterSignOutUrl="/" />
               </SignedIn>
             </div>
-          </div>
-        </div>
-      </header>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-reddit/5 to-orange-50 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-5xl font-bold text-gray-900 mb-6">
-              Make Every Reddit Post
-              <span className="text-reddit block">Rule-Proof</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              AI-powered assistant that rewrites your Reddit posts to comply
-              with subreddit rules, increasing acceptance rates and boosting
-              karma.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
               <SignedOut>
                 <SignUpButton mode="modal">
-                  <button className="btn-primary text-lg px-8 py-4">
-                    Start Writing Better Posts
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                  <button className="btn-primary text-sm px-4 py-2">
+                    Start
                   </button>
                 </SignUpButton>
               </SignedOut>
               <SignedIn>
                 <Link
                   href="/dashboard"
-                  className="btn-primary text-lg px-8 py-4"
+                  className="btn-secondary text-sm px-4 py-2"
                 >
-                  Go to Dashboard
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  Dashboard
                 </Link>
               </SignedIn>
-              <button className="btn-secondary text-lg px-8 py-4">
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-reddit/5 to-orange-50 py-12 sm:py-16 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight">
+              Make Every Reddit Post
+              <span className="text-reddit block">Rule-Proof</span>
+            </h1>
+            <p className="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
+              AI-powered assistant that rewrites your Reddit posts to comply
+              with subreddit rules, increasing acceptance rates and boosting
+              karma.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+              <SignedOut>
+                <SignUpButton mode="modal">
+                  <button className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
+                    Start Writing Better Posts
+                    <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                </SignUpButton>
+              </SignedOut>
+              <SignedIn>
+                <Link
+                  href="/dashboard"
+                  className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto inline-flex items-center justify-center"
+                >
+                  Go to Dashboard
+                  <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+                </Link>
+              </SignedIn>
+              <button className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto">
                 Watch Demo
               </button>
             </div>
 
-            <div className="mt-8 flex flex-col items-center space-y-2 text-sm text-gray-500">
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-500 px-4">
               <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-1" />3 free
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />3 free
                 rewrites per day
               </div>
               <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
                 No credit card required
               </div>
               <div className="flex items-center">
-                <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
+                <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
                 Works with any subreddit
               </div>
             </div>
@@ -115,47 +135,53 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
               Why Your Posts Get Removed
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
               Every subreddit has unique rules. RedditFit learns them all and
               rewrites your content to fit perfectly.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="card text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+            <div className="card text-center p-6 sm:p-8">
               <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Shield className="w-6 h-6 text-red-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">Rule Compliance</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3">
+                Rule Compliance
+              </h3>
+              <p className="text-sm sm:text-base text-gray-600">
                 Automatically checks your post against subreddit rules and fixes
                 violations before you submit.
               </p>
             </div>
 
-            <div className="card text-center">
+            <div className="card text-center p-6 sm:p-8">
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Zap className="w-6 h-6 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">AI Rewriting</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3">
+                AI Rewriting
+              </h3>
+              <p className="text-sm sm:text-base text-gray-600">
                 Smart AI rewrites your content while preserving your message and
                 improving readability.
               </p>
             </div>
 
-            <div className="card text-center">
+            <div className="card text-center p-6 sm:p-8">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="w-6 h-6 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-3">Karma Boost</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3">
+                Karma Boost
+              </h3>
+              <p className="text-sm sm:text-base text-gray-600">
                 Rule-compliant posts get better engagement, leading to more
                 upvotes and karma.
               </p>
@@ -343,18 +369,18 @@ export default function HomePage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
               Simple, Transparent Pricing
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-gray-600">
               Start free, upgrade when you need more power
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
             {/* Free Plan */}
             <div className="card">
               <div className="text-center">
