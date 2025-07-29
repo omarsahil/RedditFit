@@ -274,7 +274,7 @@ export default function PricingPage() {
               planName={
                 selectedPlan === "pro-monthly" ? "Pro Plan" : "Basic Plan"
               }
-              price={selectedPlan === "pro-monthly" ? 1900 : 900}
+              price={selectedPlan === "pro-monthly" ? 999 : 900}
               onSuccess={() => {
                 setSelectedPlan(null);
                 // Optionally redirect to dashboard

@@ -172,7 +172,7 @@ export class DodoPaymentClient {
       {
         id: "pro-monthly",
         name: "Pro Plan",
-        price: 1900, // $19.00
+        price: 999, // $9.99
         currency: "usd",
         interval: "month",
         features: [

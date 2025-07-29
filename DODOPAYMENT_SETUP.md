@@ -54,7 +54,7 @@ Events to listen for:
 The integration includes three subscription plans:
 
 - **Basic Plan**: $9/month - 50 rewrites per day
-- **Pro Plan**: $19/month - 200 rewrites per day
+- **Pro Plan**: $9.99/month - 200 rewrites per day
 - **Unlimited Plan**: $29/month - Unlimited rewrites
 
 You can modify these plans in `lib/dodopayment.ts` in the `getAvailablePlans()` method.

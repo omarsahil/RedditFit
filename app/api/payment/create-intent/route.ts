@@ -58,10 +58,20 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     logger.error("Error creating payment intent", {
       error: error instanceof Error ? error.message : String(error),
+      userId,
+      planId,
     });
 
+    // Return more specific error message
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: "Failed to create payment intent" },
+      {
+        error: "Failed to create payment intent",
+        details: errorMessage,
+        planId,
+        userId,
+      },
       { status: 500 }
     );
   }
