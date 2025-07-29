@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import DemoButton from "@/components/DemoButton";
 
 export default function HomePage() {
   return (
@@ -113,16 +114,7 @@ export default function HomePage() {
                   <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
                 </Link>
               </SignedIn>
-              <button
-                onClick={() => {
-                  document.getElementById("demo-section")?.scrollIntoView({
-                    behavior: "smooth",
-                  });
-                }}
-                className="btn-secondary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
-              >
-                Watch Demo
-              </button>
+              <DemoButton />
             </div>
 
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-500 px-4">
