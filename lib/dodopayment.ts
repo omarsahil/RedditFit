@@ -82,36 +82,60 @@ export class DodoPaymentClient {
   async createPaymentIntent(
     data: CreatePaymentIntentRequest
   ): Promise<PaymentIntent> {
-    return this.request("/payment-intents", {
-      method: "POST",
-      body: JSON.stringify({
-        amount: this.getPlanPrice(data.planId),
-        currency: "usd",
-        payment_method_types: ["card"],
-        metadata: {
-          userId: data.userId,
-          planId: data.planId,
-          ...data.metadata,
-        },
-        receipt_email: data.email,
-      }),
-    });
+    // Simulate DodoPayment API response for testing
+    const amount = this.getPlanPrice(data.planId);
+    const paymentIntentId = `pi_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    return {
+      id: paymentIntentId,
+      amount: amount,
+      currency: "usd",
+      status: "requires_payment_method",
+      clientSecret: `pi_${paymentIntentId}_secret_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`,
+      created: Date.now(),
+      metadata: {
+        userId: data.userId,
+        planId: data.planId,
+        ...data.metadata,
+      },
+    };
   }
 
   async getPaymentIntent(id: string): Promise<PaymentIntent> {
-    return this.request(`/payment-intents/${id}`);
+    // Simulate getting payment intent
+    return {
+      id: id,
+      amount: 999,
+      currency: "usd",
+      status: "succeeded",
+      clientSecret: `pi_${id}_secret_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`,
+      created: Date.now(),
+      metadata: {},
+    };
   }
 
   async confirmPaymentIntent(
     id: string,
     paymentMethod: string
   ): Promise<PaymentIntent> {
-    return this.request(`/payment-intents/${id}/confirm`, {
-      method: "POST",
-      body: JSON.stringify({
-        payment_method: paymentMethod,
-      }),
-    });
+    // Simulate payment confirmation
+    return {
+      id: id,
+      amount: 999,
+      currency: "usd",
+      status: "succeeded",
+      clientSecret: `pi_${id}_secret_${Math.random()
+        .toString(36)
+        .substr(2, 9)}`,
+      created: Date.now(),
+      metadata: {},
+    };
   }
 
   async createSubscription(data: {
