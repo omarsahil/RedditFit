@@ -5,20 +5,10 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { PostRewriter } from "@/components/PostRewriter";
-import { Copy, ChevronDown, ChevronRight, Check } from "lucide-react";
 
 export default function DashboardClient() {
   const { isSignedIn, isLoaded } = useUser();
   const router = useRouter();
-
-  // User rewrite history state
-  const [history, setHistory] = useState<any[]>([]);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [historyError, setHistoryError] = useState("");
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [copySuccess, setCopySuccess] = useState<string | null>(null);
-  const [diagnosticInfo, setDiagnosticInfo] = useState<any>(null);
-  const [showDiagnostic, setShowDiagnostic] = useState(false);
 
   // Analytics state
   const [analytics, setAnalytics] = useState<{
@@ -38,31 +28,9 @@ export default function DashboardClient() {
     resetDate: Date;
   } | null>(null);
 
-  // Fetch user rewrite history
-  useEffect(() => {
-    if (!isLoaded || !isSignedIn) return;
-    setLoadingHistory(true);
-    setHistoryError("");
-    fetch("/api/rewrite/history")
-      .then(async (res) => {
-        if (!res.ok) {
-          const errorData = await res.json().catch(() => ({}));
-          throw new Error(
-            errorData.error || `HTTP ${res.status}: ${res.statusText}`
-          );
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setHistory(data);
-        setLoadingHistory(false);
-      })
-      .catch((err) => {
-        console.error("History fetch error:", err);
-        setHistoryError(`Could not load rewrite history: ${err.message}`);
-        setLoadingHistory(false);
-      });
-  }, [isLoaded, isSignedIn]);
+  // Diagnostic state
+  const [diagnosticInfo, setDiagnosticInfo] = useState<any>(null);
+  const [showDiagnostic, setShowDiagnostic] = useState(false);
 
   // Fetch analytics
   useEffect(() => {
@@ -115,35 +83,6 @@ export default function DashboardClient() {
   useEffect(() => {
     fetchUserPlan();
   }, [isLoaded, isSignedIn]);
-
-  // Delete a rewrite
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this rewrite?")) return;
-    await fetch(`/api/rewrite/history?id=${id}`, { method: "DELETE" });
-    setHistory((h) => h.filter((item) => item.id !== id));
-  };
-
-  // Toggle row expansion
-  const toggleRow = (id: string) => {
-    const newExpanded = new Set(expandedRows);
-    if (newExpanded.has(id)) {
-      newExpanded.delete(id);
-    } else {
-      newExpanded.add(id);
-    }
-    setExpandedRows(newExpanded);
-  };
-
-  // Copy text to clipboard
-  const copyToClipboard = async (text: string, type: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(`${type} copied!`);
-      setTimeout(() => setCopySuccess(null), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
-    }
-  };
 
   // Run diagnostic
   const runDiagnostic = async () => {
@@ -247,7 +186,7 @@ export default function DashboardClient() {
         </div>
 
         {/* Error Display */}
-        {(historyError || !userPlan) && (
+        {userPlan === null && (
           <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -268,7 +207,6 @@ export default function DashboardClient() {
                   Dashboard Loading Issue
                 </h3>
                 <div className="mt-2 text-sm text-red-700">
-                  {historyError && <p>History Error: {historyError}</p>}
                   {!userPlan && (
                     <p>
                       User plan not loaded. This might be a database connection
@@ -329,229 +267,8 @@ export default function DashboardClient() {
           </div>
         </div>
 
-        {/* User Rewrite History */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Your Rewrite History
-          </h2>
-          {loadingHistory ? (
-            <div className="text-gray-500">Loading history...</div>
-          ) : historyError ? (
-            <div className="text-red-500">{historyError}</div>
-          ) : history.length === 0 ? (
-            <div className="text-gray-600">No rewrites yet.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
-                      Original Title
-                    </th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
-                      Rewritten Title
-                    </th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
-                      Subreddit
-                    </th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
-                      Compliance
-                    </th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
-                      Date
-                    </th>
-                    <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.map((item) => (
-                    <>
-                      <tr key={item.id} className="border-t hover:bg-gray-50">
-                        <td className="px-4 py-2 max-w-xs">
-                          <div className="flex items-center">
-                            <button
-                              onClick={() => toggleRow(item.id)}
-                              className="mr-2 text-gray-400 hover:text-gray-600"
-                            >
-                              {expandedRows.has(item.id) ? (
-                                <ChevronDown className="w-4 h-4" />
-                              ) : (
-                                <ChevronRight className="w-4 h-4" />
-                              )}
-                            </button>
-                            <span
-                              className="truncate"
-                              title={item.originalTitle}
-                            >
-                              {item.originalTitle}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-2 max-w-xs">
-                          <div className="flex items-center justify-between">
-                            <span
-                              className="truncate"
-                              title={item.rewrittenTitle}
-                            >
-                              {item.rewrittenTitle}
-                            </span>
-                            <button
-                              onClick={() =>
-                                copyToClipboard(
-                                  item.rewrittenTitle,
-                                  "Rewritten title"
-                                )
-                              }
-                              className="ml-2 text-gray-400 hover:text-gray-600"
-                              title="Copy rewritten title"
-                            >
-                              <Copy className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </td>
-                        <td className="px-4 py-2">r/{item.subreddit}</td>
-                        <td className="px-4 py-2">
-                          <span
-                            className={`px-2 py-1 text-xs rounded-full ${
-                              item.complianceScore >= 90
-                                ? "bg-green-100 text-green-800"
-                                : item.complianceScore >= 70
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {item.complianceScore}%
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 text-xs text-gray-500">
-                          {new Date(item.createdAt).toLocaleString()}
-                        </td>
-                        <td className="px-4 py-2">
-                          <button
-                            onClick={() => handleDelete(item.id)}
-                            className="text-red-600 hover:underline text-sm"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                      {expandedRows.has(item.id) && (
-                        <tr key={`${item.id}-expanded`} className="bg-gray-50">
-                          <td colSpan={6} className="px-4 py-4">
-                            <div className="space-y-4">
-                              <div>
-                                <h4 className="font-semibold text-gray-900 mb-2">
-                                  Original Content
-                                </h4>
-                                <div className="bg-white border rounded-lg p-3">
-                                  <div className="mb-2">
-                                    <span className="font-medium text-gray-700">
-                                      Title:
-                                    </span>
-                                    <div className="mt-1 text-gray-900">
-                                      {item.originalTitle}
-                                    </div>
-                                  </div>
-                                  {item.originalBody && (
-                                    <div>
-                                      <span className="font-medium text-gray-700">
-                                        Body:
-                                      </span>
-                                      <div className="mt-1 text-gray-900 whitespace-pre-wrap">
-                                        {item.originalBody}
-                                      </div>
-                                    </div>
-                                  )}
-                                  <button
-                                    onClick={() =>
-                                      copyToClipboard(
-                                        `${item.originalTitle}\n\n${
-                                          item.originalBody || ""
-                                        }`,
-                                        "Original content"
-                                      )
-                                    }
-                                    className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center"
-                                  >
-                                    <Copy className="w-3 h-3 mr-1" />
-                                    Copy original
-                                  </button>
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-gray-900 mb-2">
-                                  Rewritten Content
-                                </h4>
-                                <div className="bg-white border rounded-lg p-3">
-                                  <div className="mb-2">
-                                    <span className="font-medium text-gray-700">
-                                      Title:
-                                    </span>
-                                    <div className="mt-1 text-gray-900">
-                                      {item.rewrittenTitle}
-                                    </div>
-                                  </div>
-                                  {item.rewrittenBody && (
-                                    <div>
-                                      <span className="font-medium text-gray-700">
-                                        Body:
-                                      </span>
-                                      <div className="mt-1 text-gray-900 whitespace-pre-wrap">
-                                        {item.rewrittenBody}
-                                      </div>
-                                    </div>
-                                  )}
-                                  <button
-                                    onClick={() =>
-                                      copyToClipboard(
-                                        `${item.rewrittenTitle}\n\n${
-                                          item.rewrittenBody || ""
-                                        }`,
-                                        "Rewritten content"
-                                      )
-                                    }
-                                    className="mt-2 text-sm text-blue-600 hover:text-blue-800 flex items-center"
-                                  >
-                                    <Copy className="w-3 h-3 mr-1" />
-                                    Copy rewritten
-                                  </button>
-                                </div>
-                              </div>
-                              {item.changes && item.changes.length > 0 && (
-                                <div>
-                                  <h4 className="font-semibold text-gray-900 mb-2">
-                                    Changes Made
-                                  </h4>
-                                  <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                    {item.changes.map(
-                                      (change: string, index: number) => (
-                                        <li key={index}>{change}</li>
-                                      )
-                                    )}
-                                  </ul>
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-
         {/* Copy Success Toast */}
-        {copySuccess && (
-          <div className="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center z-50">
-            <Check className="w-4 h-4 mr-2" />
-            {copySuccess}
-          </div>
-        )}
+        {/* Removed copy success toast as it was tied to history */}
       </main>
 
       {/* Footer */}
