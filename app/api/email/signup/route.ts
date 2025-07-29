@@ -6,6 +6,12 @@ const BREVO_API_URL = "https://api.brevo.com/v3/contacts";
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Environment check:", {
+      hasApiKey: !!BREVO_API_KEY,
+      apiKeyLength: BREVO_API_KEY?.length,
+      listId: BREVO_LIST_ID,
+    });
+
     if (!BREVO_API_KEY) {
       console.error("BREVO_API_KEY not configured");
       return NextResponse.json(
@@ -59,8 +65,14 @@ export async function POST(request: NextRequest) {
       }
 
       console.error("Brevo API error:", data);
+      console.error("Response status:", response.status);
+      console.error("Response headers:", response.headers);
+
+      // Return more specific error message
+      const errorMessage =
+        data.message || data.error || "Unknown Brevo API error";
       return NextResponse.json(
-        { error: "Failed to subscribe. Please try again." },
+        { error: `Brevo API Error: ${errorMessage}` },
         { status: 500 }
       );
     }
